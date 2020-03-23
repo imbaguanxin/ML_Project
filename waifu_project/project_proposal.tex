@@ -4,7 +4,7 @@
 
 
 
-\title{Title of Your Project}
+\title{Recognize anime characters with Machine Learning}
 
 \author{Ziqian Ge, Xin Guan}
 
@@ -17,6 +17,7 @@
 Use machine learning to recognize anime characters' faces in illustrations.
 
 \section{Introduction}
+
 As the fandom community grows, a large number of fan-arts made by non-official illustrators began to show up and gradually became an significant part of the community.
 Fan-arts spread on the internet are often not labeled or are hard for people to recognize the character it is illustrating, since many anime characters shares similar characteristics and different illustrators may have their own taste.
 Untagged illustrations would make some trouble if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations.
@@ -26,13 +27,17 @@ This project is aiming to use machine learning to automatically recognize charac
 
 
 \section{Proposed Project}
+
 We would like to use a subset of Nagadomi's anime face character dataset that was uploaded by Myles O'Neill to kaggle 2 years ago (https://www.kaggle.com/mylesoneill/tagged-anime-illustrations).
 It contains pictures of faces of 173 different anime characters, around 50--150 pictures each.
 We are also planning to manually collect and tag some data for some those characters that do not have over 100 pictures.
+Since this dataset has a rather long history, we plan to collect new pictures of modern anime characters. Therefore, this model perform better on newly produced characters.
 The data is not split into training and validation set, so we will be manually splitting them by random.
 
 The features is not extracted since the data is stored as .png files.
 We are planning to use \texttt{torchvision} or \texttt{scikit-image} to load and transform data and extract features from it.
 Each pixel of after resizing will represent a single feature, and we are looking to resize pictures into $128 \times 128$ pixels.
 This transform in size  may be changed in the future as the project goes.
+
+We are planning to use methods including regression and support vector machines to categorize the character illustrations. After refercing to image recognition demos on web, we plan to try building up neural networks from scratch as well as building upon exisiting models like ImageNet. 
 \end{document}
