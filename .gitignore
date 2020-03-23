@@ -1,4 +1,7 @@
 .DS_Store
+waifu_project/data_set/modeling_data/
+**.idea
+**.Rhistory
 
 # Created by https://www.gitignore.io/api/python,pycharm,jupyternotebooks
 # Edit at https://www.gitignore.io/?templates=python,pycharm,jupyternotebooks
