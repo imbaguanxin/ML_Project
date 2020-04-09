@@ -13,7 +13,7 @@ import os
 import copy
 
 
-def data_loader(normalize_para, resize, batch_size=12, num_worker=4, train_proportion=0.8):
+def data_loader(normalize_para, resize, batch_size=16, num_worker=4, train_proportion=0.8):
     data_transforms = transforms.Compose([
         transforms.RandomResizedCrop(resize),
         transforms.RandomHorizontalFlip(),
@@ -74,6 +74,7 @@ def main():
     title = ""
     for name in char_names:
         title = title + name + "\n"
+    print(char_names)
     loader_display(out, mean, std, title=title)
 
 
