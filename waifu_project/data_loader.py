@@ -1,82 +1,172 @@
-from __future__ import print_function, division
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-import numpy as np
-import torchvision
-from torchvision import datasets, models, transforms
-import matplotlib.pyplot as plt
-import time
 import os
-import copy
+import cv2
+import mahotas
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.io as sio
+from sklearn.preprocessing import LabelEncoder
+import torch
+import torchvision as tv
+
+stat = "[STATUS]"
+warn = "[WARNING]"
 
 
-def data_loader(normalize_para, resize, batch_size=16, num_worker=4, train_proportion=0.8):
-    data_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(resize),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(normalize_para['train'][0], normalize_para['train'][1])
-    ])
-    data_dir = 'data_set/modeling_data/'
-    anime_data = datasets.ImageFolder(data_dir, data_transforms)
-    if train_proportion < 0.4 or train_proportion >= 1:
-        print("Training set size not good! Set to default: 0.8")
-        train_proportion = 0.8
-    train_size = int(train_proportion * len(anime_data))
-    test_size = len(anime_data) - train_size
-    train_dataset, test_dataset = torch.utils.data.random_split(anime_data, [train_size, test_size])
-    split_dataset = {'train': train_dataset, 'test': test_dataset}
-    data_loaders = {
-        x: torch.utils.data.DataLoader(split_dataset[x],
-                                       batch_size=batch_size,
-                                       shuffle=True,
-                                       num_workers=num_worker)
-        for x in ['train', 'test']
-    }
-    dataset_sizes = {x: len(split_dataset[x]) for x in ['train', 'test']}
-    character_names = anime_data.classes
-    print("Character names: {}".format(character_names))
+class feature_extraction_dataloader:
 
-    return data_loaders, dataset_sizes, character_names
+    def __init__(self, fixed_size=(224, 224), data_path=os.path.join('data_set', 'modeling_data'), bins=8):
+        self.path = data_path
+        self.pic_size = fixed_size
+        self.bins = bins
+
+    def hu_moments(self, image):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        return cv2.HuMoments(cv2.moments(gray)).flatten()
+
+    def haralick_textures(self, image):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        return mahotas.features.haralick(gray).mean(axis=0)
+
+    def color_histo(self, image, mask=None):
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hist = cv2.calcHist([image], [0, 1, 2], None, [self.bins, self.bins, self.bins], [0, 256, 0, 256, 0, 256])
+        cv2.normalize(hist, hist)
+        return hist.flatten()
+
+    def extract_single_image(self, pic_dir, hu_moments=True, haralick=True, histogram=True):
+        if not (hu_moments or haralick or histogram):
+            raise ValueError("{} Must choose at lease one image model!".format(warn))
+        else:
+            image = cv2.imread(pic_dir)
+            image = cv2.resize(image, self.pic_size)
+            image_features = np.array([])
+            if hu_moments:
+                image_features = np.hstack((image_features, self.hu_moments(image)))
+            if haralick:
+                image_features = np.hstack((image_features, self.haralick_textures(image)))
+            if histogram:
+                image_features = np.hstack((image_features, self.color_histo(image)))
+            return image_features
+
+    def single_rgb(self, pic_dir):
+        image = cv2.imread(pic_dir)
+        image = cv2.resize(image, self.pic_size)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return np.array(image).flatten()
+
+    def load_image(self, hu_moments=True, haralick=True, histogram=True):
+        character_labels = os.listdir(self.path)
+        print("{} Characters including {}".format(stat, character_labels))
+
+        images_features = []
+        images_rgb = []
+        labels = []
+
+        # loading images from folders
+        for training_class in character_labels:
+            image_folder = os.path.join(self.path, training_class)
+            pics_name = os.listdir(image_folder)
+            print("{} processing folder: {}".format(stat, training_class))
+            for pic in pics_name:
+                pic_dir = os.path.join(image_folder, pic)
+                feature = self.extract_single_image(pic_dir,
+                                                    hu_moments=hu_moments,
+                                                    haralick=haralick,
+                                                    histogram=histogram)
+                rgb = self.single_rgb(pic_dir)
+                labels.append(training_class)
+                images_features.append(feature)
+                images_rgb.append(rgb)
+
+        print("{} completed Feature Extraction.".format(stat))
+        print("{} feature vector shape: {}".format(stat, np.array(images_features).shape))
+        print("{} rgb vector shape: {}".format(stat, np.array(images_rgb).shape))
+        print("{} label vector shape: {}".format(stat, np.array(labels).shape))
+        return images_features, images_rgb, labels
+
+    def write_data(self, hu_moments=True, haralick=True, histogram=True):
+        img_features, img_rgb, img_labels = self.load_image(hu_moments=hu_moments,
+                                                            haralick=haralick,
+                                                            histogram=histogram)
+        names = np.unique(img_labels)
+        encoder = LabelEncoder()
+        target = encoder.fit_transform(img_labels)
+        print("{} training labels encoded.".format(stat))
+        data = {
+            'image_feature': img_features,
+            'image_rgb': img_rgb,
+            'labels': target,
+            'names': names
+        }
+        sio.savemat(os.path.join('data_set', 'img_feature.mat'), data)
+        print("{} save to data_set/img_feature.mat".format(stat))
 
 
-def loader_display(inp, mean, std, title=None):
-    """Imshow for Tensor."""
-    inp = inp.numpy().transpose((1, 2, 0))
-    mean = np.array(mean)
-    std = np.array(std)
-    inp = std * inp + mean
-    inp = np.clip(inp, 0, 1)
-    plt.imshow(inp)
-    if title is not None:
-        plt.title(title)
-    plt.pause(0.001)
+class pytorch_dataloader():
 
+    def __init__(self, data_dir=os.path.join('data_set', 'modeling_data'), size=(224, 224), mean=None, std=None):
+        if mean is None:
+            mean = [0.485, 0.456, 0.406]
+        if std is None:
+            std = [0.229, 0.224, 0.225]
+        self.norm_para = {
+            'train': [mean, std],
+            'test': [mean, std]
+        }
+        self.data_dir = data_dir
+        self.pic_size = size
 
-def main():
-    plt.ion()
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-    norm_para = {
-        'train': [mean, std],
-        'test': [mean, std]
-    }
-    resize = 224
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    loaders, sizes, names = data_loader(norm_para, resize)
-    inputs, classes = next(iter(loaders['train']))
-    out = torchvision.utils.make_grid(inputs)
+    def gen_loader(self, batch_size=16, num_worker=4, train_proportion=0.8):
+        data_transforms = tv.transforms.Compose([
+            tv.transforms.RandomResizedCrop(self.pic_size),
+            tv.transforms.RandomHorizontalFlip(),
+            tv.transforms.ToTensor(),
+            tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
+        ])
 
-    char_names = [names[x] for x in classes]
-    title = ""
-    for name in char_names:
-        title = title + name + "\n"
-    print(char_names)
-    loader_display(out, mean, std, title=title)
+        data_dir = 'data_set/modeling_data/'
+        anime_data = tv.datasets.ImageFolder(data_dir, data_transforms)
+        if train_proportion < 0.4 or train_proportion >= 1:
+            print("Training set size not good! Set to default: 0.8")
+            train_proportion = 0.8
+        train_size = int(train_proportion * len(anime_data))
+        test_size = len(anime_data) - train_size
+        train_dataset, test_dataset = torch.utils.data.random_split(anime_data, [train_size, test_size])
+        split_dataset = {'train': train_dataset, 'test': test_dataset}
+        data_loaders = {
+            x: torch.utils.data.DataLoader(split_dataset[x],
+                                           batch_size=batch_size,
+                                           shuffle=True,
+                                           num_workers=num_worker)
+            for x in ['train', 'test']
+        }
+        dataset_sizes = {x: len(split_dataset[x]) for x in ['train', 'test']}
+        character_names = anime_data.classes
+        print("Character names: {}".format(character_names))
+
+        return data_loaders, dataset_sizes, character_names
+
+    def loader_display(self, inp, title=None):
+        """Imshow for Tensor."""
+        inp = inp.numpy().transpose((1, 2, 0))
+        mean = np.array(self.norm_para['train'][0])
+        std = np.array(self.norm_para['train'][1])
+        inp = std * inp + mean
+        inp = np.clip(inp, 0, 1)
+        plt.imshow(inp)
+        if title is not None:
+            plt.title(title)
+        plt.pause(0.001)
 
 
 if __name__ == '__main__':
-    main()
+    # image = cv2.imread('data_set/modeling_data/tohsaka_rin/doujin_002.png')
+    # image = cv2.resize(image, fixed_size)
+    # b, g, r = cv2.split(image)
+    # image = cv2.merge((r, g, b))
+    # plt.imshow(image)
+    # plt.show()
+
+    loader = feature_extraction_dataloader()
+    # features, labels = loader.load_image_rgb()
+    loader.write_data()
