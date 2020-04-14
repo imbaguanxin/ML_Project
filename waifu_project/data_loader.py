@@ -27,8 +27,7 @@ class feature_extraction_dataloader:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         return mahotas.features.haralick(gray).mean(axis=0)
 
-    def color_histo(self, image, mask=None):
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    def color_histo(self, image):
         hist = cv2.calcHist([image], [0, 1, 2], None, [self.bins, self.bins, self.bins], [0, 256, 0, 256, 0, 256])
         cv2.normalize(hist, hist)
         return hist.flatten()
@@ -84,7 +83,7 @@ class feature_extraction_dataloader:
         print("{} label vector shape: {}".format(stat, np.array(labels).shape))
         return images_features, images_rgb, labels
 
-    def write_data(self, hu_moments=True, haralick=True, histogram=True):
+    def write_data(self, file_name='img_feature.mat', hu_moments=True, haralick=True, histogram=True):
         img_features, img_rgb, img_labels = self.load_image(hu_moments=hu_moments,
                                                             haralick=haralick,
                                                             histogram=histogram)
@@ -98,7 +97,7 @@ class feature_extraction_dataloader:
             'labels': target,
             'names': names
         }
-        sio.savemat(os.path.join('data_set', 'img_feature.mat'), data)
+        sio.savemat(os.path.join('data_set', file_name), data)
         print("{} save to data_set/img_feature.mat".format(stat))
 
 
@@ -116,13 +115,14 @@ class pytorch_dataloader():
         self.data_dir = data_dir
         self.pic_size = size
 
-    def gen_loader(self, batch_size=16, num_worker=4, train_proportion=0.8):
-        data_transforms = tv.transforms.Compose([
-            tv.transforms.RandomResizedCrop(self.pic_size),
-            tv.transforms.RandomHorizontalFlip(),
-            tv.transforms.ToTensor(),
-            tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
-        ])
+    def gen_loader(self, data_transforms=None, batch_size=16, num_worker=4, train_proportion=0.8):
+        if not data_transforms:
+            data_transforms = tv.transforms.Compose([
+                tv.transforms.RandomResizedCrop(self.pic_size),
+                tv.transforms.RandomHorizontalFlip(),
+                tv.transforms.ToTensor(),
+                tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
+            ])
 
         data_dir = 'data_set/modeling_data/'
         anime_data = tv.datasets.ImageFolder(data_dir, data_transforms)
@@ -144,7 +144,7 @@ class pytorch_dataloader():
         character_names = anime_data.classes
         print("Character names: {}".format(character_names))
 
-        return data_loaders, dataset_sizes, character_names
+        return data_loaders, dataset_sizes, character_names, data_transforms
 
     def loader_display(self, inp, title=None):
         """Imshow for Tensor."""
