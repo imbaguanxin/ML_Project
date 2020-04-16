@@ -53,7 +53,7 @@ class feature_extraction_dataloader:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return np.array(image).flatten()
 
-    def load_image(self, hu_moments=True, haralick=True, histogram=True):
+    def load_image(self, hu_moments=True, haralick=True, histogram=True, get_rgb=True):
         character_labels = os.listdir(self.path)
         print("{} Characters including {}".format(stat, character_labels))
 
@@ -72,10 +72,11 @@ class feature_extraction_dataloader:
                                                     hu_moments=hu_moments,
                                                     haralick=haralick,
                                                     histogram=histogram)
-                rgb = self.single_rgb(pic_dir)
                 labels.append(training_class)
                 images_features.append(feature)
-                images_rgb.append(rgb)
+                if get_rgb:
+                    rgb = self.single_rgb(pic_dir)
+                    images_rgb.append(rgb)
 
         print("{} completed Feature Extraction.".format(stat))
         print("{} feature vector shape: {}".format(stat, np.array(images_features).shape))
@@ -83,10 +84,11 @@ class feature_extraction_dataloader:
         print("{} label vector shape: {}".format(stat, np.array(labels).shape))
         return images_features, images_rgb, labels
 
-    def write_data(self, file_name='img_feature.mat', hu_moments=True, haralick=True, histogram=True):
+    def write_data(self, file_name='img_feature.mat', hu_moments=True, haralick=True, histogram=True, rgb=False):
         img_features, img_rgb, img_labels = self.load_image(hu_moments=hu_moments,
                                                             haralick=haralick,
-                                                            histogram=histogram)
+                                                            histogram=histogram,
+                                                            get_rgb=rgb)
         names = np.unique(img_labels)
         encoder = LabelEncoder()
         target = encoder.fit_transform(img_labels)
