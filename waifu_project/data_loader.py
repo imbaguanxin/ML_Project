@@ -62,10 +62,10 @@ class feature_extraction_dataloader:
         labels = []
 
         # loading images from folders
-        for training_class in character_labels:
+        for index, training_class in zip(range(len(character_labels)), character_labels):
             image_folder = os.path.join(self.path, training_class)
             pics_name = os.listdir(image_folder)
-            print("{} processing folder: {}".format(stat, training_class))
+            print("{} {}/{} processing folder: {}".format(stat, index + 1, len(character_labels), training_class))
             for pic in pics_name:
                 pic_dir = os.path.join(image_folder, pic)
                 feature = self.extract_single_image(pic_dir,
