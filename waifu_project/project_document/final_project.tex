@@ -19,11 +19,17 @@ Please provide a brief abstract of your project.
 
 \vspace{2mm}
 \section{Introduction}
-As the fandom community grows, a large number of fan-arts made by non-official illustrators began to show up and gradually became an significant part of the community.
-Fan-arts spread on the internet are often not labeled or are hard for people to recognize the character it is illustrating, since many anime characters shares similar characteristics and different illustrators may have their own taste.
-Untagged illustrations would make some trouble if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations.
+As the fandom community of animation grows, a large number of fan-arts made by non-official illustrators began to show up and gradually became an significant part of the community.
+Fan-arts spread on the internet are often not labeled or are hard for people, especially those who are new to the community, to recognize the illustrating character, since many anime characters shares similar characteristics and different illustrators may shift some of the features base on their own taste.\\ \\
+Untagged illustrations would make some trouble for animation community members. 
+Large number of 'Who is she/he' questions are emerging on social networks plantforms like Twitter, 2Chan and Bilibili. 
+Even some video makers are making videos on answering those questions. 
+On the other hand, within the machine learning community, if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations, they might have to tag those pictures manually.\\ \\
 Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character, for example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.\\ \\
-This project is aiming to use machine learning to automatically recognize characters in illustrations, based specifically on their faces.
+This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\ \\
+In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape of the image contents and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of pre-trained ResNet[] as the image features and train them on non-neural-network models.\\ \\
+In this project, we did hyperparameter tunning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi’s anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with ResNet extracted features. However, our first strategy leads to rather poor accuracy rate on all models (about 20\% accurate rate on 178 classes). 
+
 
 \section{Technical Approach}
 Please describe the techniques you have used in order to address the problem. Describe in detail the classification/regression/other techniques you have used in order to tackle the problem.
