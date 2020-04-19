@@ -16,7 +16,7 @@ def data_cleaning(moeimouto=True, self_collected=True):
 
 
 def moeimouto_clean_up():
-    source_path = os.path.join('data_set', 'moeimouto-faces')
+    source_path = os.path.join('data_set', 'moeimouto-faces-filtered')
     destination_path = os.path.join('data_set', 'modeling_data')
     source_pics_folders = os.listdir(source_path)
     for folder in source_pics_folders:

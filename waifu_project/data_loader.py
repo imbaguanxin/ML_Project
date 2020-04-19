@@ -252,7 +252,7 @@ class resnet_traditional_model:
 
         return img_data, labels
 
-    def write(self, file_name='resnet_img_feature.mat'):
+    def write_data(self, file_name='resnet_img_feature.mat'):
         img_features, img_labels = self.feature_extraction()
         names = np.unique(img_labels)
         encoder = LabelEncoder()
