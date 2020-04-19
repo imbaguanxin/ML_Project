@@ -115,9 +115,8 @@ def img_stat(data_dir, num_channels=3):
     for i, d in enumerate(cls_dirs):
         img_paths = [os.path.join(data_dir, d, img_file)
                      for img_file in os.listdir(os.path.join(data_dir, d))]
-
+        print("{} Extract img color mean and std {}".format(stat, d))
         for img_path in img_paths:
-            print("processing {}".format(img_path))
             orig_img = cv2.imread(img_path)
             rgb_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2RGB)
             img = rgb_img / 255.
