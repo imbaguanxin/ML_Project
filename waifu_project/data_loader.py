@@ -1,7 +1,7 @@
 import os
 import time
-
 import PIL
+from os.path import isdir
 import cv2
 import mahotas
 import matplotlib.pyplot as plt
@@ -106,16 +106,42 @@ class feature_extraction_dataloader:
         print("{} save to data_set/img_feature.mat".format(stat))
 
 
+def img_stat(data_dir, num_channels=3):
+    cls_dirs = [d for d in os.listdir(data_dir) if isdir(os.path.join(data_dir, d))]
+    channel_sum = np.zeros(num_channels)
+    channel_sqr_sum = np.zeros(num_channels)
+    pixel_num = 0
+
+    for i, d in enumerate(cls_dirs):
+        img_paths = [os.path.join(data_dir, d, img_file)
+                     for img_file in os.listdir(os.path.join(data_dir, d))]
+
+        for img_path in img_paths:
+            print("processing {}".format(img_path))
+            orig_img = cv2.imread(img_path)
+            rgb_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2RGB)
+            img = rgb_img / 255.
+            pixel_num += (img.size / num_channels)
+            channel_sum += np.sum(img, axis=(0, 1))
+            channel_sqr_sum += np.sum(np.square(img), axis=(0, 1))
+
+    img_mean = channel_sum / pixel_num
+    img_std = np.sqrt(channel_sqr_sum / pixel_num - np.square(img_mean))
+
+    return img_mean, img_std
+
+
 class pytorch_dataloader():
 
-    def __init__(self, data_dir=os.path.join('data_set', 'modeling_data'), size=(224, 224), mean=None, std=None):
-        if mean is None:
-            mean = [0.485, 0.456, 0.406]
-        if std is None:
-            std = [0.229, 0.224, 0.225]
+    def __init__(self, data_dir=os.path.join('data_set', 'modeling_data'), size=(224, 224),
+                 channel_mean=None, channel_std=None):
+        if channel_mean is None:
+            channel_mean = [0.485, 0.456, 0.406]
+        if channel_std is None:
+            channel_std = [0.229, 0.224, 0.225]
         self.norm_para = {
-            'train': [mean, std],
-            'test': [mean, std]
+            'train': [channel_mean, channel_std],
+            'test': [channel_mean, channel_std]
         }
         self.data_dir = data_dir
         self.pic_size = size
@@ -167,13 +193,15 @@ class pytorch_dataloader():
 class resnet_traditional_model:
 
     def __init__(self, img_transform=None, model=tv.models.resnet18(pretrained=True), mean=None, std=None):
+        data_dir = os.path.join('data_set', 'modeling_data')
+        mean_dataset, std_dataset = img_stat(data_dir)
         if mean is None:
-            self.mean = [0.485, 0.456, 0.406]
+            self.mean = mean_dataset
         else:
             self.mean = mean
 
         if std is None:
-            self.std = [0.229, 0.224, 0.225]
+            self.std = std_dataset
         else:
             self.std = std
 
@@ -241,18 +269,6 @@ class resnet_traditional_model:
         print("{} save to {}".format(stat, os.path.join(filename)))
 
 
-
 if __name__ == '__main__':
-    # image = cv2.imread('data_set/modeling_data/tohsaka_rin/doujin_002.png')
-    # image = cv2.resize(image, fixed_size)
-    # b, g, r = cv2.split(image)
-    # image = cv2.merge((r, g, b))
-    # plt.imshow(image)
-    # plt.show()
-
-    # loader = feature_extraction_dataloader()
-    # # features, labels = loader.load_image_rgb()
-    # loader.write_data()
-
     rn_tr = resnet_traditional_model()
     rn_tr.write()
