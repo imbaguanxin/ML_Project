@@ -1,4 +1,7 @@
 import os
+import time
+
+import PIL
 import cv2
 import mahotas
 import matplotlib.pyplot as plt
@@ -161,6 +164,84 @@ class pytorch_dataloader():
         plt.pause(0.001)
 
 
+class resnet_traditional_model:
+
+    def __init__(self, img_transform=None, model=tv.models.resnet18(pretrained=True), mean=None, std=None):
+        if mean is None:
+            self.mean = [0.485, 0.456, 0.406]
+        else:
+            self.mean = mean
+
+        if std is None:
+            self.std = [0.229, 0.224, 0.225]
+        else:
+            self.std = std
+
+        if img_transform is None:
+            self.img_transform = tv.transforms.Compose([
+                tv.transforms.Resize((224, 224)),
+                tv.transforms.ToTensor(),
+                tv.transforms.Normalize(self.mean, self.std)
+            ])
+        else:
+            self.img_transform = img_transform
+        self.model = model
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.eval()
+        self.model.to(self.device)
+        print("[STATUS] Using device: {}".format(self.device))
+
+    def single_image_to_vec(self, raw_img):
+        img = self.img_transform(raw_img)
+        img = img.unsqueeze(0)
+        if torch.cuda.is_available():
+            img = img.cuda()
+        outputs = self.model(img).detach().cpu().clone().numpy()[0]
+        return outputs
+
+    def feature_extraction(self):
+        modeling_data_path = os.path.join('data_set', 'modeling_data')
+        characters_folders = os.listdir(modeling_data_path)
+
+        img_data = []
+        labels = []
+
+        since = time.time()
+        for i, character in enumerate(characters_folders):
+            print('[STATUS] {}/{} Processing {}'.format(i + 1, len(characters_folders), character))
+            pic_folder = os.path.join(modeling_data_path, character)
+            all_pics = os.listdir(pic_folder)
+            for pic in all_pics:
+                pic_dir = os.path.join(pic_folder, pic)
+                raw_img = PIL.Image.open(pic_dir).convert('RGB')
+                output = self.single_image_to_vec(raw_img)
+                img_data.append(output)
+                labels.append(character)
+        time_elapsed = time.time() - since
+
+        print('{} Feature extraction complete in {:.0f}m {:.0f}s'.format(stat, time_elapsed // 60, time_elapsed % 60))
+        print("{} feature vector shape: {}".format(stat, np.array(img_data).shape))
+        print("{} label vector shape: {}".format(stat, np.array(labels).shape))
+
+        return img_data, labels
+
+    def write(self, file_name='resnet_img_feature.mat'):
+        img_features, img_labels = self.feature_extraction()
+        names = np.unique(img_labels)
+        encoder = LabelEncoder()
+        target = encoder.fit_transform(img_labels)
+        print("{} training labels encoded.".format(stat))
+        data = {
+            'resnet_feature': img_features,
+            'labels': target,
+            'names': names
+        }
+        filename = os.path.join('data_set', file_name)
+        sio.savemat(filename, data)
+        print("{} save to {}".format(stat, os.path.join(filename)))
+
+
+
 if __name__ == '__main__':
     # image = cv2.imread('data_set/modeling_data/tohsaka_rin/doujin_002.png')
     # image = cv2.resize(image, fixed_size)
@@ -169,6 +250,9 @@ if __name__ == '__main__':
     # plt.imshow(image)
     # plt.show()
 
-    loader = feature_extraction_dataloader()
-    # features, labels = loader.load_image_rgb()
-    loader.write_data()
+    # loader = feature_extraction_dataloader()
+    # # features, labels = loader.load_image_rgb()
+    # loader.write_data()
+
+    rn_tr = resnet_traditional_model()
+    rn_tr.write()
