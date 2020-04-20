@@ -146,39 +146,125 @@
             \item \textbf{Nagadomi's Anime Face Character Dataset}
 
             Nagadomi's dataset contains a lot of falsely labeled images, some differently labeled images that are actually the same character, a lot of images that cannot be recognized even by human, and a lot of characters does not contain sufficient amount of data, i.e.\ some characters has less than 100 images.
-            Bad images like ones shown below were removed from our dataset manually.\\ \\
+            Bad images like ones shown below were removed from our dataset manually and a copy of filtered data is stored separately.\\ \\
             \begin{figure}[h!]
                 \begin{subfigure}[h]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{../data_set/moeimouto-faces/007_nagato_yuki/face_145_303_113.png}
-                    \caption{Nagato Yuki}
+                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_145_303_113.png}
+                    \caption{Bad Nagato Yuki}
                 \end{subfigure}
                 \begin{subfigure}[h]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{../data_set/moeimouto-faces/007_nagato_yuki/face_235_235_128.png}
-                    \caption{Nagato Yuki}
+                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_235_235_128.png}
+                    \caption{Good Nagato Yuki}
                 \end{subfigure}
                 \caption{Comparison between a bad image and a good image}
             \end{figure}
             \begin{figure}[h!]
                 \begin{subfigure}[h]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{../data_set/moeimouto-faces/074_daidouji_tomoyo/face_795_301_69.png}
+                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_795_301_69.png}
                     \caption{Meirin Ri labeled as Daidouji Tomoyo}
                 \end{subfigure}
                 \begin{subfigure}[h]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{../data_set/moeimouto-faces/074_daidouji_tomoyo/face_451_275_121.png}
+                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_1141_433_41.png}
                     \caption{Real Daidouji Tomoyo}
                 \end{subfigure}
                 \caption{The character on the left, Meirin Ri is falsely labeled as Daidouji Tomoyo}
             \end{figure}
             \item \textbf{Self-collected Dataset}
+
+            We have also collected some images for about 10 characters, each with over 100 images, manually from animations and illustrations published on web.
+            These images are basically in the same format as images in Nagadomi's dataset, square-like images of faces of anime characters.
+            \item \textbf{Subset-ing the whole dataset}
+
+            There are a total of 173 characters, and it was impracticable to train our models and tune hyperparameters using all of our data due to lack of computing power and time.
+            We decide to manually pick some characters from the whole dataset, each with over 100 images, to make subset of the total dataset to tune hyper-parameters.
+            The training and testing on the whole dataset was be performed using the hyperparameter tuned from that subset and the results will be reported.
         \end{itemize}
         \item \textbf{Non-Neural-Network Models}
         \begin{itemize}
-            \item \textbf{Data Pre-processing and Feature Extracting}
+            \item \textbf{Data Pre-processing and Feature Extraction}
+
+            This feature extraction process was a direct combination of HuMoments (implemented in OpenCV), Haralick features (implemented in mahotas), and color histogram (implemented in OpenCV).
+            The result of the previous feature extraction was plugged as input into the next feature extraction method.
+            The order of feature extraction we chose was: HuMoments $\rightarrow$ Haralick $\rightarrow$ color histogram.
+            \item \textbf{Model implementation}
+
+            We have trained logistic regression classifier, K neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier all using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
             \item \textbf{Hyperparameter Tunning}
+            Hyperparameters was tuned using the subset of dataset described above and the result using all of our data would also be produced after hyperparameters was tuned.
+            \begin{enumerate}
+                \item Logistic Regression classifier
+
+                Since we chose to use "lbfgs" solver in scikit-learn, we can only use l2-norm in penalization, or use no regularization.
+                Logistic regression models with or without regularization functions and with different regularization strength used in penalty function (C in scikit-learn) was trained to find out whether we are regularizing and the value of regularization strength.
+                The regularization strength, C, was tested with floats ranging from $0.1$ to $10.0$ to find the best value.
+
+                Testing results:
+
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/log_reg_hyperparam_penalty.png}
+                    \end{subfigure}
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/log_reg_hyperparam_c.png}
+                    \end{subfigure}
+                    \caption{Logistic Regression classifiers hyperparameter tuning}
+                \end{figure}
+
+
+
+
+
+                As shown in the result, we should have l2-norm regularization in penalty function.
+
+                \item K Neighbors classifier
+
+                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.
+
+                Testing results:
+
+                \includegraphics[width=0.75\linewidth]{images/knn_k.png}
+
+                \item Random Forest classifier
+
+                We have tried forests with different loss function, Gini impurity function and Information Entropy function, both accuracy and computing time was record:
+
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/rand_forest_loss_func.png}
+                    \end{subfigure}
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/rand_forest_n_estimators.png}
+                    \end{subfigure}
+                \end{figure}
+
+                As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $1200$.
+
+                \item Support Vector Machine classifier
+
+                We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them.
+
+                \includegraphics[width=0.75\linewidth]{images/svm_kernel.png}
+
+                For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
+                The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value.
+
+                \includegraphics[width=\linewidth]{images/svm_c_degree.png}
+
+                The best hyperparameter $C = 4.0$ and $degree = 4$, with accuracy $= 0.799$
+
+                \begin{figure}
+
+                \end{figure}
+
+            \end{enumerate}
             \item \textbf{Prediction Result}
         \end{itemize}
         \item \textbf{Neural-Network Model}
@@ -188,29 +274,14 @@
             \item \textbf{Prediction Result}
         \end{itemize}
     \end{enumerate}
-
-    We did some initial data filtering on Nagadomi's anime face character dataset and added some data collected by ourselves.
-
-    There are a total of 173 characters, and it was impracticable to train our models and tune hyper-parameters using all of our data, we decide to pick some characters each with over 100 images to make subset of the total dataset to tune hyper-parameters.\\ \\
-    We have made our classification in three major directions: traditional models, neural network (ResNet), and combining traditional models and neural network.\\ \\
-    For traditional models approach, we have trained logistic regression classifier, K neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier using scikit-learn to tune hyper-parameters on the subset described above.
+    For traditional models approach, we have trained logistic regression classifier, K neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
     The classification result using all of our data was produced using the model performing the best in the subset after all hyper-parameter was tuned.\\ \\
-    For neural networks approach, we chose ResNet, which was implemented in PyTorch, to be our neural network model.
+    For neural networks approach, we chose ResNet, which was implemented in \texttt{PyTorch}, to be our neural network model.
     We have trained ResNets with different number of layers, 18 layers (ResNet18), 34 layers (ResNet34), 50 layers (ResNet50), 101 layers (ResNet 101) on the same subset that was used in hyper-parameter tuning process of traditional models to find the network with number of layers performing the best.
     The classification result using all of our data was also produced using the network performing the best in the subset.\\ \\
     For the combination of traditional models and neural network approach, we decided to train traditional models using the results from the neural network that was chosen in the neural networks approach, so that the ResNet would work as a feature extraction method for traditional models.
-    Hyper-parameters was tuned using the same subset of data in the previous approaches, and the result using all of our data would also be produced after hyper-parameters was tuned.\\ \\
-    In details of traditional models, models was actually trained using features extracted from the raw RGB data.
-    This feature extraction process was a direct combination of HuMoments (implemented in OpenCV), Haralick features (implemented in mahotas), and color histogram (implemented in OpenCV), by plugging them into each other.
-    The order of feature extraction we chose was: HuMoments $\rightarrow$ Haralick $\rightarrow$ color histogram.\\ \\
-    For tuning hyper-parameters of logistic regression classifier, logistic regression models with or without regularization functions and different regularization strength (C in scikit-learn) was trained to find the best penalty function and the value of regularization strength.
-    Since we chose to use "lbfgs" solver in scikit-learn, we can only use l2-norm in penalization, or use no regularization.
-    The regularization strength, C, was tested with floats ranging from $0.1$ to $10.0$ to find the best value.\\ \\
-    For tuning hyper-parameters of K neighbors classifier, we tried out different values of $k$, ranging from $1$ to $30$ to find the best value of $k$.\\ \\
-    For tuning random forest classifier, we tried forests with different loss function, Gini impurity function and Information Entropy function, and different number of estimators to find the best value of them.\\ \\
-    For tuning support vector machine classifier, we tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them.
-    For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
-    The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value.\\ \\
+%    \\ \\
+    For tuning support vector machine classifier, we \\ \\
     The same process of hyper-parameter tuning was also performed in the ResNet-traditional combined approach, as the best values in different approaches are not guaranteed to be the same.
 
 
