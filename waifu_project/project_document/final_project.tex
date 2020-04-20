@@ -49,7 +49,7 @@
     Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character, for example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.\\ \\
     This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\ \\
     In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape of the image contents and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of pre-trained ResNet[] as the image features and train them on non-neural-network models.\\ \\
-    In this project, we did hyperparameter tunning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with ResNet extracted features. However, our first strategy leads to rather poor accuracy rate on all models (about 20\% accurate rate on 178 classes).
+    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with ResNet extracted features. However, our first strategy leads to rather poor accuracy rate on all models (about 20\% accurate rate on 178 classes).
 
 
     \section{Technical Approach}
@@ -65,17 +65,17 @@
         \begin{itemize}
             \item \textbf{Image Moment}
             
-            Image moment is a certain particular weighted average of the image pixels' intensities. A uniqueness theorem \cite{img_moment} claim that a piecewise continuous 2D function $f(x,y)$ with nonzero values in a finite part of the $xy$ plane, then moments of all orders exist and moment sequence is uniquely determined by $f(x,y)$. Image moments are useful to describe the shape of a image content. In this project, we made use of pre-implemented function $hu\_moment()$ in \textbf{OpenCV}\cite{opencv_library} to process the image.
+            Image moment is a certain particular weighted average of the image pixels' intensities. A uniqueness theorem \cite{img_moment} claim that a piecewise continuous 2D function $f(x,y)$ with nonzero values in a finite part of the $xy$ plane, then moments of all orders exist and moment sequence is uniquely determined by $f(x,y)$. Image moments are useful to describe the shape of a image content. In this project, we made use of pre-implemented function $hu\_moment()$ in \texttt{OpenCV}\cite{opencv_library} to process the image.
             \item \textbf{Haralic Texture}
             
-            Haralic texture, proposed by R. M. Haralick et al. in 1973, is describing a textural features "based on graytone spatial dependancies" \cite{haralick}. This algorithm is trying to conclude the texture of a surface and the "structural arrangement of surfaces and their relationship to the surrounding environment"[]. In this project, we made use of the algorithm to extract the texture information of the images. The extraction of Haralic Textures is implemented in python package \textbf{mahotas}\cite{mahotas}, with function $mahotas.features.haralick()$
+            Haralic texture, proposed by R. M. Haralick et al. in 1973, is describing a textural features "based on graytone spatial dependancies" \cite{haralick}. This algorithm is trying to conclude the texture of a surface and the "structural arrangement of surfaces and their relationship to the surrounding environment"[]. In this project, we made use of the algorithm to extract the texture information of the images. The extraction of Haralic Textures is implemented in python package \texttt{mahotas}\cite{mahotas}, with function $mahotas.features.haralick()$
             \item \textbf{Histogram of Colors}
             
-            In order to zip the information of color of a image, we decide to calculate how color are ditributed in $HSV$ channels. To discretize the continuous distribution of colors, we decide to use 8 bins in each channel and thus store the histogram of colors to a vector. Again, we made use of \textbf{OpenCV}\cite{opencv_library} to process the image.
+            In order to zip the information of color of a image, we decide to calculate how color are ditributed in $HSV$ channels. To discretize the continuous distribution of colors, we decide to use 8 bins in each channel and thus store the histogram of colors to a vector. Again, we made use of \texttt{OpenCV}\cite{opencv_library} to process the image.
         \end{itemize}
         \item \textbf{Prediction Models}
         
-        In this project, we made use of many of the models that we learned in this course as well as some models in the prerequisite of this course. The implementation of these models are from python package \textbf{scikit-learn}\cite{scikit-learn}. 
+        In this project, we made use of many of the models that we learned in this course as well as some models in the prerequisite of this course. The implementation of these models are from python package \texttt{scikit-learn}\cite{scikit-learn}. 
             \begin{itemize}
                 \item \textbf{Logistic Regression}
                 
@@ -84,23 +84,23 @@
                 In order to tacle overfitting problem, we also add a regularization strength $\lambda$:
                 $$p(x = X | w) = \frac{1}{1 + e^{-(w^Tx + b)}} + \lambda ||w||^2_2$$
                 where $||w||_2^2$ is the $l_2$-norm of $w$. $\lambda$ is a hyperparameter need to be determined before training. Training logistic regression is through gradient descent. \\ \\
-                In \textbf{scikit-learn}\cite{scikit-learn}, this problem is formed as a optimization problem: 
+                In \texttt{scikit-learn}\cite{scikit-learn}, this problem is formed as a optimization problem: 
                 $$\min_{w, c} f(w) + c\sum_{i=1}^{n}\frac{1}{1 + e^{-y_i(w^Tx_i + b)}} $$ 
                 where $f(w) = ||w||^2_2$ if we choose $l_2$ penalty.\\ \\
                 In order to enable the model to classify multi-labels data, we train $k$ models for $k$ labels. Each model is a "one-vs-rest" classifier. When testing a given input, just find out the highest probability of all models and assign its class to the input.
                 \item \textbf{Linear Discriminant Analysis}
                 
-                Linear discriminat analysis(LDA) is a Fisher's linear discriminant\cite{fisherDA}. It is closely related to analysis of variance (ANOVA) and regression analysis. LDA assumes that the conditional probability density functions are normally distributed and the class covariances are identical.           In this project, we uses multiclass LDA. This multiclass generalization is due to C. R. Rao\cite{multiLDA}. Also, we directly use the implemented model from \textbf{Scikit-learn}\cite{scikit-learn}
+                Linear discriminat analysis(LDA) is a Fisher's linear discriminant\cite{fisherDA}. It is closely related to analysis of variance (ANOVA) and regression analysis. LDA assumes that the conditional probability density functions are normally distributed and the class covariances are identical.           In this project, we uses multiclass LDA. This multiclass generalization is due to C. R. Rao\cite{multiLDA}. Also, we directly use the implemented model from \texttt{Scikit-learn}\cite{scikit-learn}
 
                 \item \textbf{k-nearest neighbors}
                 
-                $k$-nearest neighbors(kNN) is a non-parametric passive model used for classification. Upon an input object, the model classify by a vote of its neighbors. The most often appeared class in its $k$ neareast neighbors are the output class. $k$ is a hyperparameter that we need to decide before the training.
+                $k$-nearest neighbors(kNN) is a non-parametric passive model used for classification. Upon an input object, the model classify by a vote of its neighbors. The most often appeared class in its $k$ nearest neighbors are the output class. $k$ is a hyperparameter that we need to decide before the training.
                 \item \textbf{Decision Trees}
                 
-                Decision Trees are a non-parametric supervised learning method used for classification. The model is in a tree structures where its leaves represent class labels and branches represent conjunctions of features that lead to those classes. In this project we directly use the Classification and Regression Tree (CART) implemented in \textbf{scikit-learn}\cite{scikit-learn}.
+                Decision Trees are a non-parametric supervised learning method used for classification. The model is in a tree structures where its leaves represent class labels and branches represent conjunctions of features that lead to those classes. In this project we directly use the Classification and Regression Tree (CART) implemented in \texttt{scikit-learn}\cite{scikit-learn}.
                 \item \textbf{Random Forest}
                 
-                Random Forest is constructing a mutiple decisions trees at training time and outputting the class that is the mode of the classes of individual trees. This method is first proposed by Tin Kam Ho in 1995\cite{random_forest}. Training process, called bagging\cite{rf_bagging}, is repeatly select a random sample with replacement of the training set and fits a decision tree with these samples. We made use of the $RandomForestClassifier$ of \textbf{scikit-learn}\cite{scikit-learn} to perform the classification job.
+                Random Forest is constructing a mutiple decisions trees at training time and outputting the class that is the mode of the classes of individual trees. This method is first proposed by Tin Kam Ho in 1995\cite{random_forest}. Training process, called bagging\cite{rf_bagging}, is repeatly select a random sample with replacement of the training set and fits a decision tree with these samples. We made use of the $RandomForestClassifier$ of \texttt{scikit-learn}\cite{scikit-learn} to perform the classification job.
                 \item \textbf{Gaussian Naive Bayes}
                 
                 Naive Bayes is based on applying Bayes theorem with assumptions of features are mutually independent with each other. With Bayes rule, probability of a input vector $x$ being class $y_i$ is 
@@ -112,7 +112,7 @@
                 $$P(X_i = x_i | Y = y) = N(\mu_{x_i}, \sigma^2_{x_i})$$
                 $$\mu_{x_i} = \frac{\sum_{k = 1}^L {X_k}_i}{L}$$
                 $$\sigma_{x_i} = \frac{\sum_{k = 1}^L ({X_K}_i - \mu_{x_i})^2}{L}$$
-                Where $N(\mu, \sigma)$ denotes normal distribution of mean $\mu$, standard deeviation $\sigma^2$.
+                Where $N(\mu, \sigma)$ denotes normal distribution of mean $\mu$, standard deviation $\sigma^2$.
                 \item \textbf{Support Vector Machines}
                 
                 Support Vector Machines(SVMs) are supervised learning models used for regression and classification problems. With the assumption that the data is seperatable with a hyperplane, SVM is trying to find the hyperplane with the maximized margin between the data point in each class and the hyperplane.
@@ -121,19 +121,24 @@
                     \includegraphics[width=0.3\linewidth]{./images/svm.png}
                     \caption{Maximum-margin hyperplane for a 2-class SVM}
                 \end{figure}\cite{svm_pic}\\ \\
-                We made use of the C-Support Vector Classification (SVC) provided by \textbf{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernal(if polynomial function is selected as kernel). 
+                We made use of the C-Support Vector Classification (SVC) provided by \texttt{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernal(if polynomial function is selected as kernel). 
             \end{itemize}
         \item \textbf{Neural Networks}
         
         Neural Networks(NN), first introduced by Warren McCulloch and Walter Pitts\cite{nn_init} are computing structures inspired by biological neural networks. This system is composed of several layers of artifical neurons that mimics the firing of biological neurons. \\ \\
-        In this project, we used \textbf{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the ResNet\cite{resnet} that is pre-trained on ImageNet \cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
+        In this project, we used \texttt{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the ResNet\cite{resnet} that is pre-trained on ImageNet \cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
     \end{enumerate}
 
 
     \section{Experimental Results}
 %    Describe the datasets used for your experiments. Be precise in describing all information about the datasets, including, classes, number of samples per class, features used to represent data, and all pre/post processing of the datasets.\\
 %    Describe the details about the implementation of each algorithm, e.g., how you perform training, validation, testing, values of the hyperparameters and your methods for hyperparameter tuning, training/validation/testing error on the dataset, and all useful plots/tables that help to better interpret your results and your work.\\ \\
-    In this project, we have gone through following working pipeline.
+    In this project, we have gone through a working pipeline shown in Figure 3.
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\linewidth]{images/working_pipeline.png}
+        \caption{Working Pipeline}
+    \end{figure}
     Firstly, we manually cleaned the Nagadomi's Anime Face Character Dataset and generated our own dataset with better image quality and modern animation characters.
     Then, we performed image pre-processing and feature extractions to generate three union of data: color-texture-shape information, ResNet-processed information and normalized RGB information.
     Then we designed different models according to these unions of data.
@@ -145,8 +150,8 @@
         \begin{itemize}
             \item \textbf{Nagadomi's Anime Face Character Dataset}
 
-            Nagadomi's dataset contains a lot of falsely labeled images, some differently labeled images that are actually the same character, a lot of images that cannot be recognized even by human, and a lot of characters does not contain sufficient amount of data, i.e.\ some characters has less than 100 images.
-            Bad images like ones shown below were removed from our dataset manually and a copy of filtered data is stored separately.\\ \\
+            Nagadomi's dataset contains 173 different animation characters. Most of the classes contains more than 50 images. However, it was collected 6 years ago, there are some problems in the dataset. Many of the characters are out of date so that fan art on them are no longer active. Also, most of the image size is around 100 * 100 pixels which are considered low resolution in modern standard. Therefore, some of them are difficult even for a senior community member to recognize. Furthermore, there exists some falsely labeled images, For example, shown in Figure 4, many pictures of Meirin Ri was labeled as Daidouji Tomoyo. Lastly, the data is in baised in some extend i.e. some of the classes do not contain sufficient amount of data, especially those non-popular characters.
+            Therefore, we did a manually filtering process to delete bad images like ones shown in Figure 5. A copy of filtered data is stored separately.\\ \\
             \begin{figure}[h!]
                 \begin{subfigure}[h]{0.5\linewidth}
                     \centering
@@ -175,15 +180,15 @@
             \end{figure}
             \item \textbf{Self-collected Dataset}
 
-            We have also collected some images for about 10 characters, each with over 100 images, manually from animations and illustrations published on web.
-            These images are basically in the same format as images in Nagadomi's dataset, square-like images of faces of anime characters.
+            Due to the drawbacks of the exsisting dataset. We also collected some images with better quality.  Totally, we collected images of 7 characters, each with over 100 images, manually from animations and illustrations published on web.
+            These images are in similar format as images in Nagadomi's dataset, square-like images of faces of anime characters but with higher resolution (about 400 * 400) and better quality (high quality fan-arts).
             \item \textbf{Subset-ing the whole dataset}
 
-            There are a total of 173 characters, and it was impracticable to train our models and tune hyperparameters using all of our data due to lack of computing power and time.
-            We decide to manually pick some characters from the whole dataset, each with over 100 images, to make subset of the total dataset to tune hyper-parameters.
-            The training and testing on the whole dataset was be performed using the hyperparameter tuned from that subset and the results will be reported.
+            After the manual filtering process, there remains 163 characters. Since it was impracticable to train our models and tune hyperparameters using all of the data due to lack of computing power and time, we decide to manually pick a subset of characters from the whole dataset, each with over 100 images, to tune hyper-parameters.
+            The training and testing on the whole dataset was performed on the tuned hyperparameter and the results will be reported.
+            See Appendixes for the number of images in each class.
         \end{itemize}
-        \item \textbf{Non-Neural-Network Models}
+        \item \textbf{Non-Neural-Network Models with Image Features inputs}
         \begin{itemize}
             \item \textbf{Data Pre-processing and Feature Extraction}
 
@@ -192,8 +197,8 @@
             The order of feature extraction we chose was: HuMoments $\rightarrow$ Haralick $\rightarrow$ color histogram.
             \item \textbf{Model implementation}
 
-            We have trained logistic regression classifier, K neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier all using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
-            \item \textbf{Hyperparameter Tunning}
+            We have trained logistic regression(LR) classifier, linear discriminant analysis(LDA) classifier, K neareast neighbors(KNN) classifier, decision tree(CART) classifier, random forest(RF) classifier, Gaussian Naive Bayes(NB) classifier, and support vector machine(SVM) classifier all using \texttt{scikit-learn}\cite{scikit-learn} to tune hyper-parameters on the subset described above.
+            \item \textbf{Hyperparameter Tuning}
             Hyperparameters was tuned using the subset of dataset described above and the result using all of our data would also be produced after hyperparameters was tuned.
             \begin{enumerate}
                 \item Logistic Regression classifier
@@ -215,19 +220,14 @@
                     \end{subfigure}
                     \caption{Logistic Regression classifiers hyperparameter tuning}
                 \end{figure}
-
-
-
-
-
                 As shown in the result, we should have l2-norm regularization in penalty function.
 
-                \item K Neighbors classifier
+                \item K Nearest Neighbors classifier
 
                 We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.
 
                 Testing results:
-
+                
                 \includegraphics[width=0.75\linewidth]{images/knn_k.png}
 
                 \item Random Forest classifier
@@ -263,9 +263,143 @@
                 \begin{figure}
 
                 \end{figure}
-
+                Here is a summary of the hyper-parameters:
+            \begin{center}
+                \begin{tabular}{|c|c|}
+                    \hline
+                    LR&C = 7.1, penalty = $l_2$\\ \hline
+                    KNN& $k = 6$\\ \hline
+                    RT& Loss Function = gini, n\_estimators = 1200\\ \hline
+                    SVM& Kernal = poly, degree = 4, C = 4.0\\ \hline
+                \end{tabular}
+            \end{center}
             \end{enumerate}
             \item \textbf{Prediction Result}
+            
+        \end{itemize}
+        \item \textbf{Non-Neural-Network Models With ResNet Last Layer Inputs}
+        \begin{itemize}
+            \item \textbf{Data Pre-processing and Feature Extraction}
+
+            In this part, we directly used ResNet18, pretrained on ImageNet, as the image feature extractor. We first performed a random clip along with color normalization using the color average and standard deviation of the dataset. Then, we feed all images to the ResNet18 and use the activation values as the input. The input has a length of 1000. Before training, we also did a normalization on all vectors.
+            \item \textbf{Model implementation}
+
+            Same as the previous process, we trained a LR, LDA, KNN, CART, RF, NB, SVM classifiers.
+            \item \textbf{Hyperparameter Tuning}
+            
+            Hyperparameters was tuned using the subset of dataset described above and the result using all of our data would also be produced after hyperparameters was tuned.
+            \begin{enumerate}
+                \item Logistic Regression classifier
+
+                Similar to the previous part, we iterate over several C to see which panelty is better generally. Then we find out its cooresponding regularization strength. 
+
+                Testing results charts: Figure 8. As shown in the charts, we select $C = 1.1, penalty = l_2$ 
+
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=0.8\linewidth]{images/res_tradi_LR_panelty.png}
+                    \end{subfigure}
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=0.8\linewidth]{images/res_tradi_LR_C.png}
+                    \end{subfigure}
+                    \caption{LR on ResNet Features hyperparameter tuning}
+                \end{figure}
+                \item K Nearest Neighbors classifier
+
+                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.
+
+                Testing result charts: Figure 9. Therefore, the best $k$ is 8.
+                \begin{figure}[h!]
+                    \centering
+                    \includegraphics[width=0.5\linewidth]{images/res_tradi_KNN.png}
+                    \caption{KNN on ResNet Features hyperparameter tuning}
+                \end{figure}
+
+                \item Random Forest classifier
+
+                We have tried forests with different loss function, Gini impurity function and Information Entropy function, both accuracy and computing time was record. See Figure 10. As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $500$.
+
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/res_tradi_RF_penalty.png}
+                    \end{subfigure}
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/res_tradi_RF_n_estimators.png}
+                    \end{subfigure}
+                    \caption{RF on ResNet Features hyperparameter tuning}
+                \end{figure}
+
+                \item Support Vector Machine classifier
+
+                We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them. The polynomial kernal performs the best. See Figure 11.
+                For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
+                The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value. The best hyperparameter we have is $kernal = poly, C = 1.0$ and $degree = 4$.
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/res_tradi_SVM_penalty.png}
+                    \end{subfigure}
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \includegraphics[width=\linewidth]{images/res_tradi_SVM_penalty2.png}
+                    \end{subfigure}
+                    \caption{SVM on ResNet Features Kernals tuning}
+                \end{figure}
+                \begin{figure}[h!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/res_tradi_SVM_c.png}
+                    \caption{SVM on ResNet Features C tuning}
+                \end{figure}
+
+            \end{enumerate}
+            Here is a summary of the hyper-parameters:
+            \begin{center}
+                \begin{tabular}{|c|c|}
+                    \hline
+                    LR&C = 1.1, penalty = $l_2$\\ \hline
+                    KNN& $k = 8$\\ \hline
+                    RT& Loss Function = gini, n\_estimators = 500\\ \hline
+                    SVM& Kernal = poly, degree = 4, C = 1\\ \hline
+                \end{tabular}
+            \end{center}
+            \item \textbf{Prediction Result}
+            
+            Compared to the previous method of feature extraction, features from ResNet is performing better. On the small self-collected data set. By digging into the data, we see that it is easy to confuse characters with similar hair color. In the self-collected data set, all models cannot distinguish between \texttt{violet\_evergarden} and \texttt{saber\_arutoria\_pendoragon} since they all have blonde hair. About 15\% of violet's are falsely recognized as saber. See the examples of them: Figure 13. \\
+            The result on the whole dataset is also better than the previous approach. All the accuracy rate on test set decreases. The best three model is LR, SVM and LDA.
+            see Table 1 for detailed accurate rate. 
+            \begin{table}[h!]
+                \centering
+                \caption{ResNet Feature Models Accuracy on Self-Collected Dataset}
+                    \begin{tabular}{|c|c|c|c|c|c|c|}
+                        \hline
+                         & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                        model & train & test & time & train & test & time \\ \hline
+                        LR & 1 & 0.941 & 1s & 0.94 & 0.71 & 1m 10s \\ \hline
+                        LDA  & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
+                        KNN & 0.887 & 0.832 & 1s & 0.609 & 0.414 & 3m 41s \\ \hline
+                        CART & 1 & 0.563 & 1s & 0.998 & 0.126 & 1m 38s \\ \hline
+                        RF & 1 & 0.882 & 4s & 0.998 & 0.51 & 13m 35s\\ \hline
+                        NB & 0.854 & 0.824 & 1s & 0.603 & 0.482 & 25s \\ \hline
+                        SVM  & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
+                    \end{tabular}
+            \end{table}
+            \begin{figure}[h!]
+                \begin{subfigure}[b]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=0.5\linewidth]{images/violet.png}
+                    \caption{violet\_evergarden}
+                \end{subfigure}
+                \begin{subfigure}[b]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=0.5\linewidth]{images/saber2.png}
+                    \caption{saber\_arutoria\_pendoragon}
+                \end{subfigure}
+                \caption{Characters with similar hair color may confuse the system}
+            \end{figure}
         \end{itemize}
         \item \textbf{Neural-Network Model}
         \begin{itemize}
@@ -274,7 +408,7 @@
             \item \textbf{Prediction Result}
         \end{itemize}
     \end{enumerate}
-    For traditional models approach, we have trained logistic regression classifier, K neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
+    For traditional models approach, we have trained logistic regression classifier, K nearest neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
     The classification result using all of our data was produced using the model performing the best in the subset after all hyper-parameter was tuned.\\ \\
     For neural networks approach, we chose ResNet, which was implemented in \texttt{PyTorch}, to be our neural network model.
     We have trained ResNets with different number of layers, 18 layers (ResNet18), 34 layers (ResNet34), 50 layers (ResNet50), 101 layers (ResNet 101) on the same subset that was used in hyper-parameter tuning process of traditional models to find the network with number of layers performing the best.
@@ -286,12 +420,16 @@
 
 
     \section{Participants Contribution}
-    Please list the name of the participants. For each participant explain in details the role he/she played in the project: explain which methods was implemented by which member, which dataset was processed by which member, which experimental results were generated by which members, etc.
-
+    % Please list the name of the participants. For each participant explain in details the role he/she played in the project: explain which methods was implemented by which member, which dataset was processed by which member, which experimental results were generated by which members, etc.
+    \textbf{Data Collecting}: Ziqian Ge found the Nagadomi's Anime Face Character Dataset. Xin Guan did the manual data cleaning. Ziqian Ge collected the \texttt{Illyasviel\_von\_einzbern} in the self-collected dataset; Xin Guan collected the rest. \\
+    \textbf{Data preprocessing}: Xin Guan did the data reforming in \texttt{data\_cleaning.py} and completed the feature extractors of Non-Neural-Network data loaders(class \texttt{feature\_extraction\_dataloader} and \texttt{resnet\_traditional\_model} in \texttt{data\_loader.py}). Ziqian Ge did the pytorch data loader and RGB information extractor (class \texttt{pytorch\_dataloader} and function \texttt{img\_stat} in \texttt{data\_loader.py}) 
     \vspace{10mm}
-    ** Please do not change the size of the fonts.
+    \textbf{Model Training and Hyper parameter Tunning}: Xin Guan finished the model structures for non-neural-network models (\texttt{resnet\_traditional\_models.ipynb} and \texttt{traditional\_models.ipynb}); Ziqian Ge did the neural-network constructing and traning(\texttt{neural\_network.ipynb}). Xin Guan tuned SVM and RT's parameters along with visualization; Ziqian Ge tuned LR and KNN's parameters along with visualization.
+    \textbf{Project Writing}: Xin Guan Completed Introduction, Technical Approach and Non-Neural-Network Models With ResNet Last Layer Inputs in Experimental Results. Ziqian Ge finished Dataset Overview, Non-Neural-Network Models with Image Features inputs and Neural-Network Model in Technical Approach along with the Participants Contribution.
+    \vspace{10mm}
+    % ** Please do not change the size of the fonts.
 
-    ** Please note that your submission must be at most 7 pages long, excluding references.
+    % ** Please note that your submission must be at most 7 pages long, excluding references.
 
     \newpage
     \bibliographystyle{acm}
