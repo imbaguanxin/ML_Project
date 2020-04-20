@@ -3,6 +3,8 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{cite}
 
 
 
@@ -18,13 +20,28 @@
 
     \abstract
     Please provide a brief abstract of your project.
+    
 
     \vspace{2mm}
 
 
     \section{Introduction}
     As the fandom community of animation grows, a large number of fan-arts made by non-official illustrators began to show up and gradually became an significant part of the community.
-    Fan-arts spread on the internet are often not labeled or are hard for people, especially those who are new to the community, to recognize the illustrating character, since many anime characters shares similar characteristics and different illustrators may shift some of the features base on their own taste.\\ \\
+    Fan-arts spread on the internet are often not labeled or are hard for people, especially those who are new to the community, to recognize the illustrating character, since many anime characters shares similar characteristics and different illustrators may shift some of the features base on their own taste. Therefore, one character may look very different under different painters and many characters may look alike.
+    \begin{figure}[!ht]
+        \begin{subfigure}[h]{0.5\linewidth}
+            \centering
+            \includegraphics[width=0.8\linewidth, scale=1]{./images/tosaka_grid.png}
+            \caption{Same Character by different illustrators}
+        \end{subfigure}
+        \begin{subfigure}[h]{0.5\linewidth}
+            \centering
+            \includegraphics[width=0.8\linewidth, scale=1]{./images/saber_grid.png}
+            \caption{Similar characters}
+        \end{subfigure}
+        \caption{Various Looks of a Single Character and Similar but different Characters}
+    \end{figure}
+    \\ \\
     Untagged illustrations would make some trouble for animation community members.
     Large number of 'Who is she/he' questions are emerging on social networks plantforms like Twitter, 2Chan and Bilibili.
     Even some video makers are making videos on answering those questions.
@@ -36,8 +53,81 @@
 
 
     \section{Technical Approach}
-    Please describe the techniques you have used in order to address the problem.
-    Describe in detail the classification/regression/other techniques you have used in order to tackle the problem.
+    % Please describe the techniques you have used in order to address the problem.
+    % Describe in detail the classification/regression/other techniques you have used in order to tackle the problem.
+
+    In this project, we made use of techniques relating to image feature extractions, classification models and neural networks to tackle the animation image classification problem.
+
+    \begin{enumerate}
+        \item \textbf{Feature Extraction Algorithms}
+        
+        Initially, we naively flatterned the RGB channels of a image to a vector as the input of the models, but find out that about 5-15 minutes are required to train a model even on the small dataset collected by ourselves. Additionaly, the prediction is not accurate since the flatterning process destroies the spacial relation between each pixels. Therefore, we find some way to extract the features of a image.
+        \begin{itemize}
+            \item \textbf{Image Moment}
+            
+            Image moment is a certain particular weighted average of the image pixels' intensities. A uniqueness theorem \cite{img_moment} claim that a piecewise continuous 2D function $f(x,y)$ with nonzero values in a finite part of the $xy$ plane, then moments of all orders exist and moment sequence is uniquely determined by $f(x,y)$. Image moments are useful to describe the shape of a image content. In this project, we made use of pre-implemented function $hu\_moment()$ in \textbf{OpenCV}\cite{opencv_library} to process the image.
+            \item \textbf{Haralic Texture}
+            
+            Haralic texture, proposed by R. M. Haralick et al. in 1973, is describing a textural features "based on graytone spatial dependancies" \cite{haralick}. This algorithm is trying to conclude the texture of a surface and the "structural arrangement of surfaces and their relationship to the surrounding environment"[]. In this project, we made use of the algorithm to extract the texture information of the images. The extraction of Haralic Textures is implemented in python package \textbf{mahotas}\cite{mahotas}, with function $mahotas.features.haralick()$
+            \item \textbf{Histogram of Colors}
+            
+            In order to zip the information of color of a image, we decide to calculate how color are ditributed in $HSV$ channels. To discretize the continuous distribution of colors, we decide to use 8 bins in each channel and thus store the histogram of colors to a vector. Again, we made use of \textbf{OpenCV}\cite{opencv_library} to process the image.
+        \end{itemize}
+        \item \textbf{Prediction Models}
+        
+        In this project, we made use of many of the models that we learned in this course as well as some models in the prerequisite of this course. The implementation of these models are from python package \textbf{scikit-learn}\cite{scikit-learn}. 
+            \begin{itemize}
+                \item \textbf{Logistic Regression}
+                
+                Logistic regression is used to model the probability of a certain class. With the feature input $x \in \mathbf{R}^n$, calculate $w^Tx + b, w \in \mathbf{R}^n, b \in \mathbf{R}$ the probability of $x$ in certain class is denoted by 
+                $$p(x = X | w) = \frac{1}{1 + e^{-(w^Tx + b)}}$$
+                In order to tacle overfitting problem, we also add a regularization strength $\lambda$:
+                $$p(x = X | w) = \frac{1}{1 + e^{-(w^Tx + b)}} + \lambda ||w||^2_2$$
+                where $||w||_2^2$ is the $l_2$-norm of $w$. $\lambda$ is a hyperparameter need to be determined before training. Training logistic regression is through gradient descent. \\ \\
+                In \textbf{scikit-learn}\cite{scikit-learn}, this problem is formed as a optimization problem: 
+                $$\min_{w, c} f(w) + c\sum_{i=1}^{n}\frac{1}{1 + e^{-y_i(w^Tx_i + b)}} $$ 
+                where $f(w) = ||w||^2_2$ if we choose $l_2$ penalty.\\ \\
+                In order to enable the model to classify multi-labels data, we train $k$ models for $k$ labels. Each model is a "one-vs-rest" classifier. When testing a given input, just find out the highest probability of all models and assign its class to the input.
+                \item \textbf{Linear Discriminant Analysis}
+                
+                Linear discriminat analysis(LDA) is a Fisher's linear discriminant\cite{fisherDA}. It is closely related to analysis of variance (ANOVA) and regression analysis. LDA assumes that the conditional probability density functions are normally distributed and the class covariances are identical.           In this project, we uses multiclass LDA. This multiclass generalization is due to C. R. Rao\cite{multiLDA}. Also, we directly use the implemented model from \textbf{Scikit-learn}\cite{scikit-learn}
+
+                \item \textbf{k-nearest neighbors}
+                
+                $k$-nearest neighbors(kNN) is a non-parametric passive model used for classification. Upon an input object, the model classify by a vote of its neighbors. The most often appeared class in its $k$ neareast neighbors are the output class. $k$ is a hyperparameter that we need to decide before the training.
+                \item \textbf{Decision Trees}
+                
+                Decision Trees are a non-parametric supervised learning method used for classification. The model is in a tree structures where its leaves represent class labels and branches represent conjunctions of features that lead to those classes. In this project we directly use the Classification and Regression Tree (CART) implemented in \textbf{scikit-learn}\cite{scikit-learn}.
+                \item \textbf{Random Forest}
+                
+                Random Forest is constructing a mutiple decisions trees at training time and outputting the class that is the mode of the classes of individual trees. This method is first proposed by Tin Kam Ho in 1995\cite{random_forest}. Training process, called bagging\cite{rf_bagging}, is repeatly select a random sample with replacement of the training set and fits a decision tree with these samples. We made use of the $RandomForestClassifier$ of \textbf{scikit-learn}\cite{scikit-learn} to perform the classification job.
+                \item \textbf{Gaussian Naive Bayes}
+                
+                Naive Bayes is based on applying Bayes theorem with assumptions of features are mutually independent with each other. With Bayes rule, probability of a input vector $x$ being class $y_i$ is 
+                $$P_{y_i}(x) = p(Y = y | X = [x_1, x_2, \dots] ) = \frac{p( X = [x_1, x_2, \dots] | Y = y)p(Y = y)}{p(X = [x_1, x_2, \dots])} $$
+                where $Y$ is the class, $x_i$'s are different features. With naive bayes assumptions, $p(X = [x_1, x_2, \dots] | Y = y) = \prod_i p(X_i = x_i | Y = y)$. Therefore,
+                $$P_{y_i}(x) \propto \prod_i p(X_i = x_i | Y = y)p(Y = y)$$
+                In $N$ class classification, we can calculate the value of all $P_{y_i}(x)$ for $i \in 1,2 \dots N$ according to data set. Then, we find the largest $P_{y_i}(x)$ and assign $y_i$ to $x$.\\ \\
+                Gaussian Naive Bayes is just making the assumption that the features are normally distributed. Given a dataset D with $L$ data entries:
+                $$P(X_i = x_i | Y = y) = N(\mu_{x_i}, \sigma^2_{x_i})$$
+                $$\mu_{x_i} = \frac{\sum_{k = 1}^L {X_k}_i}{L}$$
+                $$\sigma_{x_i} = \frac{\sum_{k = 1}^L ({X_K}_i - \mu_{x_i})^2}{L}$$
+                Where $N(\mu, \sigma)$ denotes normal distribution of mean $\mu$, standard deeviation $\sigma^2$.
+                \item \textbf{Support Vector Machines}
+                
+                Support Vector Machines(SVMs) are supervised learning models used for regression and classification problems. With the assumption that the data is seperatable with a hyperplane, SVM is trying to find the hyperplane with the maximized margin between the data point in each class and the hyperplane.
+                \begin{figure}[h!]
+                    \centering
+                    \includegraphics[width=0.3\linewidth]{./images/svm.png}
+                    \caption{Maximum-margin hyperplane for a 2-class SVM}
+                \end{figure}\cite{svm_pic}\\ \\
+                We made use of the C-Support Vector Classification (SVC) provided by \textbf{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernal(if polynomial function is selected as kernel). 
+            \end{itemize}
+        \item \textbf{Neural Networks}
+        
+        Neural Networks(NN), first introduced by Warren McCulloch and Walter Pitts\cite{nn_init} are computing structures inspired by biological neural networks. This system is composed of several layers of artifical neurons that mimics the firing of biological neurons. \\ \\
+        In this project, we used \textbf{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the ResNet\cite{resnet} that is pre-trained on ImageNet \cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
+    \end{enumerate}
 
 
     \section{Experimental Results}
@@ -132,4 +222,10 @@
 
     ** Please note that your submission must be at most 7 pages long, excluding references.
 
+    \newpage
+    \bibliographystyle{acm}
+    \bibliography{ref}{}
+    
+
+    
 \end{document}
