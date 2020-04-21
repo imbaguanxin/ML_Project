@@ -3,21 +3,24 @@ import re
 import shutil
 
 
-def data_cleaning(moeimouto=True, self_collected=True):
-    destination_path = os.path.join('data_set', 'modeling_data')
+def data_cleaning(moeimouto=True, self_collected=True, destination="modeling_data", force_write=False):
+    destination_path = os.path.join('data_set', destination)
     # clean the destination path
     if os.path.exists(destination_path):
+        if not force_write:
+            print("[STATUS] Destination folder {} already exist, do nothing".format(destination_path))
+            return
         shutil.rmtree(destination_path)
     os.makedirs(destination_path)
     if moeimouto:
-        moeimouto_clean_up()
+        moeimouto_clean_up(destination=destination)
     if self_collected:
-        self_collected_clean_up()
+        self_collected_clean_up(destination=destination)
 
 
-def moeimouto_clean_up():
+def moeimouto_clean_up(destination="modeling_data"):
     source_path = os.path.join('data_set', 'moeimouto-faces-filtered')
-    destination_path = os.path.join('data_set', 'modeling_data')
+    destination_path = os.path.join('data_set', destination)
     source_pics_folders = os.listdir(source_path)
     for folder in source_pics_folders:
         pic_folder_path = os.path.join(source_path, folder)
@@ -34,10 +37,10 @@ def moeimouto_clean_up():
         print("[STATUS] {} copy work finished".format(folder))
 
 
-def self_collected_clean_up():
+def self_collected_clean_up(destination="modeling_data"):
     # set source path and destination path
     source_path = os.path.join('data_set', 'self-collected')
-    destination_path = os.path.join('data_set', 'modeling_data')
+    destination_path = os.path.join('data_set', destination)
     source_pics_folders = os.listdir(source_path)
 
     # find out doujin pictures and official pictures

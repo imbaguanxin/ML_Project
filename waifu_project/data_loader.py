@@ -154,8 +154,7 @@ class pytorch_dataloader():
                 tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
             ])
 
-        data_dir = 'data_set/modeling_data/'
-        anime_data = tv.datasets.ImageFolder(data_dir, data_transforms)
+        anime_data = tv.datasets.ImageFolder(self.data_dir, data_transforms)
         if train_proportion < 0.4 or train_proportion >= 1:
             print("Training set size not good! Set to default: 0.8")
             train_proportion = 0.8
