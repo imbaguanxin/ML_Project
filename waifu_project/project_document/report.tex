@@ -485,14 +485,14 @@
                 \begin{center}
                     \textbf{ResNet Accuracies}
                 \end{center}           
-                \begin{tabular}{|c|c|c|c|}
+                \begin{tabular}{|c|c|c|c|c|c|c|}
                     \hline
-%                         & \multicolumn{3}{|c|}{self-collected} \\ \hline
-                    layers & train & test & time \\ \hline
-                    18 & 0.965 & 0.969 & $1m$ $19s$ \\ \hline
-                    34  & 0.970 & 0.987 & $1m$ $44s$ \\ \hline
-                    50 & 0.964 & 0.975 & $2m$ $33s$ \\ \hline
-                    101 & 0.965 & 0.975 & $3m$ $59s$ \\ \hline
+                    & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                    layers & train & test & time & train & test & time \\ \hline
+                    18 & 0.965 & 0.969 & $1m$ $19s$ & 0.902 & 0.890 & $14m$ $48s$ \\ \hline
+                    34  & 0.970 & 0.987 & $1m$ $44s$ & 0.919 & 0.900 & $24m$ $27s$ \\ \hline
+                    50 & 0.964 & 0.975 & $2m$ $33s$ & 0.922 & 0.909 & $38m$ $54s$ \\ \hline
+                    101 & 0.965 & 0.975 & $3m$ $59s$ & 0.936 & 0.916 & $63m$ $48s$ \\ \hline
                 \end{tabular}
             \end{minipage}          
         \end{itemize}
