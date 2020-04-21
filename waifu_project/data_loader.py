@@ -15,6 +15,16 @@ stat = "[STATUS]"
 warn = "[WARNING]"
 
 
+class DataLoaderBuilder(object):
+
+    def __init__(self, data_path=os.path.join('data_set', 'modeling_data'), pic_size=(224, 224)):
+        self.data_path = data_path
+        self.pic_size = pic_size
+
+    def build(self):
+        raise NotImplementedError("No implementation for DataLoaderBuilder.build()")
+
+
 class feature_extraction_dataloader:
 
     def __init__(self, fixed_size=(224, 224), data_path=os.path.join('data_set', 'modeling_data'), bins=8):
@@ -154,8 +164,7 @@ class pytorch_dataloader():
                 tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
             ])
 
-        data_dir = 'data_set/modeling_data/'
-        anime_data = tv.datasets.ImageFolder(data_dir, data_transforms)
+        anime_data = tv.datasets.ImageFolder(self.data_dir, data_transforms)
         if train_proportion < 0.4 or train_proportion >= 1:
             print("Training set size not good! Set to default: 0.8")
             train_proportion = 0.8
