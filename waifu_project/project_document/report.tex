@@ -272,10 +272,10 @@
             \begin{center}
                 \begin{tabular}{|c|c|}
                     \hline
-                    LR&C = 4.5, penalty = $l_2$\\ \hline
-                    KNN& $k = 6$\\ \hline
-                    RT& Loss Function = gini, n\_estimators = 3000\\ \hline
-                    SVM& Kernel = poly, degree = 3, C = 11.0\\ \hline
+                    LR&C = 5.1, penalty = $l_2$\\ \hline
+                    KNN& $k = 5$\\ \hline
+                    RT& Loss Function = gini, n\_estimators = 1400\\ \hline
+                    SVM& Kernel = poly, degree = 2, C = 7.0\\ \hline
                 \end{tabular}
             \end{center}
             \item \textbf{Prediction Results}
@@ -297,13 +297,13 @@
                     \hline
                      & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     model & train & test & time & train & test & time \\ \hline
-                    LR & 0.949 & 0.756 & $<1s$ & 0.455 & 0.339 & $37s$ \\ \hline
-                    LDA  & 0.987 & 0.420 & $<1s$ & 0.421 & 0.282 & $1s$ \\ \hline
-                    KNN & 0.784 & 0.563 & $<1s$ & 0.453 & 0.269 & $1m$ $55s$ \\ \hline
-                    CART & 1.0 & 0.605 & $<1s$ & 0.998 & 0.222 & $9s$ \\ \hline
-                    RF & 1.0 & 0.748 & $3s$ & 0.998 & 0.549 & $5m$ $11s$\\ \hline
-                    NB & 0.734 & 0.513 & $<1s$ & 0.394 & 0.134 & $13s$ \\ \hline
-                    SVM  & 0.982 & 0.782 & $<1s$ & 0.661 & 0.393 & $2m$ $15s$ \\ \hline
+                    LR & 0.940 & 0.824 & $<1s$ & 0.456 & 0.335 & $38s$ \\ \hline
+                    LDA  & 0.984 & 0.529 & $<1s$ & 0.422 & 0.282 & $1s$ \\ \hline
+                    KNN & 0.784 & 0.739 & $<1s$ & 0.454 & 0.269 & $1m$ $56s$ \\ \hline
+                    CART & 1.0 & 0.672 & $<1s$ & 0.998 & 0.218 & $9s$ \\ \hline
+                    RF & 1.0 & 0.866 & $3s$ & 0.998 & 0.551 & $5m$ $8s$\\ \hline
+                    NB & 0.649 & 0.462 & $<1s$ & 0.393 & 0.132 & $13s$ \\ \hline
+                    SVM  & 0.946 & 0.824 & $<1s$ & 0.661 & 0.393 & $2m$ $15s$ \\ \hline
                 \end{tabular}
             \end{minipage}
             
