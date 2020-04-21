@@ -121,7 +121,7 @@
                     \includegraphics[width=0.3\linewidth]{./images/svm.png}
                     \caption{Maximum-margin hyperplane for a 2-class SVM}
                 \end{figure}\cite{svm_pic}\\ \\
-                We made use of the C-Support Vector Classification (SVC) provided by \texttt{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernal(if polynomial function is selected as kernel). 
+                We made use of the C-Support Vector Classification (SVC) provided by \texttt{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernel(if polynomial function is selected as kernel).
             \end{itemize}
         \item \textbf{Neural Networks}
         
@@ -150,41 +150,51 @@
         \begin{itemize}
             \item \textbf{Nagadomi's Anime Face Character Dataset}
 
-            Nagadomi's dataset contains 173 different animation characters. Most of the classes contains more than 50 images. However, it was collected 6 years ago, there are some problems in the dataset. Many of the characters are out of date so that fan art on them are no longer active. Also, most of the image size is around 100 * 100 pixels which are considered low resolution in modern standard. Therefore, some of them are difficult even for a senior community member to recognize. Furthermore, there exists some falsely labeled images, For example, shown in Figure 4, many pictures of Meirin Ri was labeled as Daidouji Tomoyo. Lastly, the data is in baised in some extend i.e. some of the classes do not contain sufficient amount of data, especially those non-popular characters.
-            Therefore, we did a manually filtering process to delete bad images like ones shown in Figure 5. A copy of filtered data is stored separately.\\ \\
+            Nagadomi's dataset contains 173 different animation characters.
+            Most of the classes contains more than 50 images.
+            However, it was collected 6 years ago, there are some problems in the dataset.
+            Many of the characters are out of date so that fan art on them are no longer active.
+            Also, most of the image size is around 100 * 100 pixels which are considered low resolution in modern standard.
+            Therefore, some of them are difficult even for a senior community member to recognize.
+            Furthermore, there exists some falsely labeled images, For example, shown in Figure 4, many pictures of Meirin Ri was labeled as Daidouji Tomoyo.
+            Lastly, the data is in baised in some extend i.e. some of the classes do not contain sufficient amount of data, especially those non-popular characters.
+            Therefore, we did a manually filtering process to delete bad images like ones shown in Figure 4.
+            A copy of filtered data is stored separately.\\ \\
+%            \begin{figure}[h!]
+%                \begin{subfigure}[h]{0.5\linewidth}
+%                    \centering
+%                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_145_303_113.png}
+%                    \caption{Bad Nagato Yuki}
+%                \end{subfigure}
+%                \begin{subfigure}[h]{0.5\linewidth}
+%                    \centering
+%                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_235_235_128.png}
+%                    \caption{Good Nagato Yuki}
+%                \end{subfigure}
+%                \caption{Comparison between a bad image and a good image}
+%            \end{figure}
             \begin{figure}[h!]
-                \begin{subfigure}[h]{0.5\linewidth}
+                \begin{subfigure}[b]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_145_303_113.png}
-                    \caption{Bad Nagato Yuki}
-                \end{subfigure}
-                \begin{subfigure}[h]{0.5\linewidth}
-                    \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_235_235_128.png}
-                    \caption{Good Nagato Yuki}
-                \end{subfigure}
-                \caption{Comparison between a bad image and a good image}
-            \end{figure}
-            \begin{figure}[h!]
-                \begin{subfigure}[h]{0.5\linewidth}
-                    \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_795_301_69.png}
+                    \includegraphics[width=0.5\linewidth]{images/face_795_301_69.png}
                     \caption{Meirin Ri labeled as Daidouji Tomoyo}
                 \end{subfigure}
-                \begin{subfigure}[h]{0.5\linewidth}
+                \begin{subfigure}[b]{0.5\linewidth}
                     \centering
-                    \includegraphics[width=0.5\linewidth, scale=0.5]{images/face_1141_433_41.png}
+                    \includegraphics[width=0.5\linewidth]{images/face_1141_433_41.png}
                     \caption{Real Daidouji Tomoyo}
                 \end{subfigure}
                 \caption{The character on the left, Meirin Ri is falsely labeled as Daidouji Tomoyo}
             \end{figure}
             \item \textbf{Self-collected Dataset}
 
-            Due to the drawbacks of the exsisting dataset. We also collected some images with better quality.  Totally, we collected images of 7 characters, each with over 100 images, manually from animations and illustrations published on web.
+            Due to the drawbacks of the existing dataset, we also collected some images with better quality.
+            Totally, we collected images of 7 characters, each with over 100 images, manually from animations and illustrations published on web.
             These images are in similar format as images in Nagadomi's dataset, square-like images of faces of anime characters but with higher resolution (about 400 * 400) and better quality (high quality fan-arts).
             \item \textbf{Subset-ing the whole dataset}
 
-            After the manual filtering process, there remains 163 characters. Since it was impracticable to train our models and tune hyperparameters using all of the data due to lack of computing power and time, we decide to manually pick a subset of characters from the whole dataset, each with over 100 images, to tune hyper-parameters.
+            After the manual filtering process, there remains 163 characters.
+            Since it was impracticable to train our models and tune hyperparameters using all of the data due to lack of computing power and time, we decide to manually pick a subset of characters from the whole dataset, each with over 100 images, to tune hyper-parameters.
             The training and testing on the whole dataset was performed on the tuned hyperparameter and the results will be reported.
             See Appendixes for the number of images in each class.
         \end{itemize}
@@ -212,23 +222,31 @@
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
                         \centering
-                        \includegraphics[width=\linewidth]{images/log_reg_hyperparam_penalty.png}
+                        \includegraphics[width=0.75\linewidth]{images/log_reg_hyperparam_penalty.png}
                     \end{subfigure}
                     \begin{subfigure}[b]{0.5\linewidth}
                         \centering
-                        \includegraphics[width=\linewidth]{images/log_reg_hyperparam_c.png}
+                        \includegraphics[width=0.75\linewidth]{images/log_reg_hyperparam_c.png}
                     \end{subfigure}
                     \caption{Logistic Regression classifiers hyperparameter tuning}
                 \end{figure}
-                As shown in the result, we should have l2-norm regularization in penalty function.
+                As shown in the result, we should have l2-norm regularization in penalty function, and the best regularization strength $C= 4.5$, with accuracy $= 0.807$
 
                 \item K Nearest Neighbors classifier
 
                 We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.
 
                 Testing results:
-                
-                \includegraphics[width=0.75\linewidth]{images/knn_k.png}
+
+                \begin{figure}[h!]
+                    \begin{subfigure}[b]{\linewidth}
+                        \centering
+                        \includegraphics[width=0.5\linewidth]{images/knn_k.png}
+                    \end{subfigure}
+                    \caption{K Neighbor classifiers hyperparameter tuning}
+                \end{figure}
+
+                As shown in the graph, the $k$ performing the best is $k = 6$.
 
                 \item Random Forest classifier
 
@@ -237,15 +255,15 @@
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
                         \centering
-                        \includegraphics[width=\linewidth]{images/rand_forest_loss_func.png}
+                        \includegraphics[width=0.75\linewidth]{images/rand_forest_loss_func.png}
                     \end{subfigure}
                     \begin{subfigure}[b]{0.5\linewidth}
                         \centering
-                        \includegraphics[width=\linewidth]{images/rand_forest_n_estimators.png}
+                        \includegraphics[width=0.75\linewidth]{images/rand_forest_n_estimators.png}
                     \end{subfigure}
                 \end{figure}
 
-                As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $1200$.
+                As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $3000$.
 
                 \item Support Vector Machine classifier
 
@@ -256,7 +274,7 @@
                 For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
                 The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value.
 
-                \includegraphics[width=\linewidth]{images/svm_c_degree.png}
+                \includegraphics[width=0.75\linewidth]{images/svm_c_degree.png}
 
                 The best hyperparameter $C = 4.0$ and $degree = 4$, with accuracy $= 0.799$
 
@@ -267,15 +285,52 @@
             \begin{center}
                 \begin{tabular}{|c|c|}
                     \hline
-                    LR&C = 7.1, penalty = $l_2$\\ \hline
+                    LR&C = 4.5, penalty = $l_2$\\ \hline
                     KNN& $k = 6$\\ \hline
-                    RT& Loss Function = gini, n\_estimators = 1200\\ \hline
-                    SVM& Kernal = poly, degree = 4, C = 4.0\\ \hline
+                    RT& Loss Function = gini, n\_estimators = 3000\\ \hline
+                    SVM& Kernel = poly, degree = 3, C = 11.0\\ \hline
                 \end{tabular}
             \end{center}
             \end{enumerate}
-            \item \textbf{Prediction Result}
-            
+            \item \textbf{Prediction Results}
+            \begin{table}[h!]
+                \centering
+                \caption{Non-Neural-Network Approaches' Accuracies}
+                    \begin{tabular}{|c|c|c|c|c|c|c|}
+                        \hline
+                         & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                        model & train & test & time & train & test & time \\ \hline
+                        LR & 0.949 & 0.756 & $<1s$ & 0.455 & 0.339 & $37s$ \\ \hline
+                        LDA  & 0.987 & 0.420 & $<1s$ & 0.421 & 0.282 & $1s$ \\ \hline
+                        KNN & 0.784 & 0.563 & $<1s$ & 0.453 & 0.269 & $1m$ $55s$ \\ \hline
+                        CART & 1.0 & 0.605 & $<1s$ & 0.998 & 0.222 & $9s$ \\ \hline
+                        RF & 1.0 & 0.748 & $3s$ & 0.998 & 0.549 & $5m$ $11s$\\ \hline
+                        NB & 0.734 & 0.513 & $<1s$ & 0.394 & 0.134 & $13s$ \\ \hline
+                        SVM  & 0.982 & 0.782 & $<1s$ & 0.661 & 0.393 & $2m$ $15s$ \\ \hline
+                    \end{tabular}
+            \end{table}
+
+            As shown in the Table 1, the model performing the best on the whole dataset is Random Forest classifier.
+
+            When looking closely at the overall prediction results , we noticed that all models have some pattern making mistakes.
+            One example is making mistakes distinguishing characters with similar hair color.
+            Digging into the results with self-collected data, we found that models were easy to confuse characters with similar hair color.
+            In the self-collected data set, all models made some mistakes distinguishing between \texttt{violet\_evergarden} and \texttt{saber\_arutoria\_pendoragon} since they all have blonde hair.
+            About 15\% in average of \texttt{violet\_evergarden}'s images were falsely recognized as \texttt{saber\_arutoria\_pendoragon}.
+            See the examples of them: Figure 13.
+            \begin{figure}[h!]
+                \begin{subfigure}[b]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=0.5\linewidth]{images/violet.png}
+                    \caption{violet\_evergarden}
+                \end{subfigure}
+                \begin{subfigure}[b]{0.5\linewidth}
+                    \centering
+                    \includegraphics[width=0.5\linewidth]{images/saber2.png}
+                    \caption{saber\_arutoria\_pendoragon}
+                \end{subfigure}
+                \caption{Characters with similar hair color may confuse the system}
+            \end{figure}
         \end{itemize}
         \item \textbf{Non-Neural-Network Models With ResNet Last Layer Inputs}
         \begin{itemize}
@@ -335,9 +390,12 @@
 
                 \item Support Vector Machine classifier
 
-                We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them. The polynomial kernal performs the best. See Figure 11.
+                We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them.
+                The polynomial kernel performs the best.
+                See Figure 11.
                 For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
-                The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value. The best hyperparameter we have is $kernal = poly, C = 1.0$ and $degree = 4$.
+                The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value.
+                The best hyperparameter we have is $kernel = poly, C = 1.0$ and $degree = 4$.
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
                         \centering
@@ -347,11 +405,11 @@
                         \centering
                         \includegraphics[width=\linewidth]{images/res_tradi_SVM_penalty2.png}
                     \end{subfigure}
-                    \caption{SVM on ResNet Features Kernals tuning}
+                    \caption{SVM on ResNet Features Kernels tuning}
                 \end{figure}
                 \begin{figure}[h!]
                     \centering
-                    \includegraphics[width=\linewidth]{images/res_tradi_SVM_c.png}
+                    \includegraphics[width=0.75\linewidth]{images/res_tradi_SVM_c.png}
                     \caption{SVM on ResNet Features C tuning}
                 \end{figure}
 
@@ -363,14 +421,19 @@
                     LR&C = 1.1, penalty = $l_2$\\ \hline
                     KNN& $k = 8$\\ \hline
                     RT& Loss Function = gini, n\_estimators = 500\\ \hline
-                    SVM& Kernal = poly, degree = 4, C = 1\\ \hline
+                    SVM& Kernel = poly, degree = 4, C = 1\\ \hline
                 \end{tabular}
             \end{center}
             \item \textbf{Prediction Result}
             
-            Compared to the previous method of feature extraction, features from ResNet is performing better. On the small self-collected data set. By digging into the data, we see that it is easy to confuse characters with similar hair color. In the self-collected data set, all models cannot distinguish between \texttt{violet\_evergarden} and \texttt{saber\_arutoria\_pendoragon} since they all have blonde hair. About 15\% of violet's are falsely recognized as saber. See the examples of them: Figure 13. \\
-            The result on the whole dataset is also better than the previous approach. All the accuracy rate on test set decreases. The best three model is LR, SVM and LDA.
-            see Table 1 for detailed accurate rate. 
+            Compared to the previous method of feature extraction, features from ResNet is performing better.
+            The pattern of making mistakes between characters with, for example, similar hair color, was still persisting.
+%            See Figure below as an example.
+            The severity was greatly ameliorated, however.
+            The result on the whole dataset is also better than the previous approach.
+            All the accuracy rate on test set decreases.
+            The best three model is LR, SVM and LDA\@.
+            see Table 1 for detailed accuracy rate.
             \begin{table}[h!]
                 \centering
                 \caption{ResNet Feature Models Accuracy on Self-Collected Dataset}
@@ -387,36 +450,59 @@
                         SVM  & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
                     \end{tabular}
             \end{table}
-            \begin{figure}[h!]
-                \begin{subfigure}[b]{0.5\linewidth}
-                    \centering
-                    \includegraphics[width=0.5\linewidth]{images/violet.png}
-                    \caption{violet\_evergarden}
-                \end{subfigure}
-                \begin{subfigure}[b]{0.5\linewidth}
-                    \centering
-                    \includegraphics[width=0.5\linewidth]{images/saber2.png}
-                    \caption{saber\_arutoria\_pendoragon}
-                \end{subfigure}
-                \caption{Characters with similar hair color may confuse the system}
-            \end{figure}
+%            \begin{figure}[h!]
+%                \begin{subfigure}[b]{0.5\linewidth}
+%                    \centering
+%                    \includegraphics[width=0.5\linewidth]{images/violet.png}
+%                    \caption{violet\_evergarden}
+%                \end{subfigure}
+%                \begin{subfigure}[b]{0.5\linewidth}
+%                    \centering
+%                    \includegraphics[width=0.5\linewidth]{images/saber2.png}
+%                    \caption{saber\_arutoria\_pendoragon}
+%                \end{subfigure}
+%                \caption{Characters with similar hair color may confuse the system}
+%            \end{figure}
         \end{itemize}
-        \item \textbf{Neural-Network Model}
+        \item \textbf{Neural Networks Approach (ResNet)}
         \begin{itemize}
-            \item \textbf{Data Pre-processing}
-            \item \textbf{Hyperparameter}
-            \item \textbf{Prediction Result}
+            \item \textbf{Data Pre-processing and Feature Extraction}
+
+            Images was loaded using \texttt{torchvision} with initial transformations of:
+            \begin{itemize}
+                \item randomly resizing into $224 \times 224$
+                \item randomly horizontal flipping
+                \item normalization using the mean and standard deviation of each RGB channel calculated from our whole dataset
+            \end{itemize}
+
+            \item \textbf{Model Implementation}
+
+            Models were pretrained in PyTorch using ImageNet so we would be starting with a good enough weight to get potential prediction improvement.
+            We used cross entropy function as our loss function and stochastic gradient descent as our optimizer with initial learning rate of $0.001$, and momentum of $0.9$.
+            Learning rate was also adjusted by decaying 0.1 each 7 epochs, using learning rate scheduler packaged within \texttt{PyTorch}.
+            Each model was trained for 25 epochs with training data and prediction results on both training and testing dataset were recorded after each epoch.
+            \item \textbf{Prediction results}
+
+            We tested ResNet of 18, 34, 50, 101 layers packaged within \texttt{PyTorch} using the subset of data mentioned above.
+            The accuracy of ResNet of each layer are shown in the Table below:
+            \begin{table}[h!]
+                \centering
+                \caption{ResNet Accuracies on the subset}
+                    \begin{tabular}{|c|c|c|c|}
+                        \hline
+%                         & \multicolumn{3}{|c|}{self-collected} \\ \hline
+                        layers & train & test & time \\ \hline
+                        18 & 0.965 & 0.969 & $1m$ $19s$ \\ \hline
+                        34  & 0.970 & 0.987 & $1m$ $44s$ \\ \hline
+                        50 & 0.964 & 0.975 & $2m$ $33s$ \\ \hline
+                        101 & 0.965 & 0.975 & $3m$ $59s$ \\ \hline
+                    \end{tabular}
+            \end{table}
+
+            The problem of distinguishing characters with similar features, e.g.\ same hair color, was persisting but was greatly ameliorated.
+            Only about $12\%$ of \texttt{violet\_evergarden} was recognized as \texttt{saber\_arutoria\_pendoragon}
         \end{itemize}
     \end{enumerate}
-    For traditional models approach, we have trained logistic regression classifier, K nearest neighbors classifier, decision tree classifier, random forest classifier, Gaussian Naive Bayes classifier, and support vector machine classifier using \texttt{scikit-learn} to tune hyper-parameters on the subset described above.
-    The classification result using all of our data was produced using the model performing the best in the subset after all hyper-parameter was tuned.\\ \\
-    For neural networks approach, we chose ResNet, which was implemented in \texttt{PyTorch}, to be our neural network model.
-    We have trained ResNets with different number of layers, 18 layers (ResNet18), 34 layers (ResNet34), 50 layers (ResNet50), 101 layers (ResNet 101) on the same subset that was used in hyper-parameter tuning process of traditional models to find the network with number of layers performing the best.
-    The classification result using all of our data was also produced using the network performing the best in the subset.\\ \\
-    For the combination of traditional models and neural network approach, we decided to train traditional models using the results from the neural network that was chosen in the neural networks approach, so that the ResNet would work as a feature extraction method for traditional models.
-%    \\ \\
-    For tuning support vector machine classifier, we \\ \\
-    The same process of hyper-parameter tuning was also performed in the ResNet-traditional combined approach, as the best values in different approaches are not guaranteed to be the same.
 
 
     \section{Participants Contribution}
