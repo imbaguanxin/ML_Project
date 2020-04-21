@@ -15,16 +15,6 @@ stat = "[STATUS]"
 warn = "[WARNING]"
 
 
-class DataLoaderBuilder(object):
-
-    def __init__(self, data_path=os.path.join('data_set', 'modeling_data'), pic_size=(224, 224)):
-        self.data_path = data_path
-        self.pic_size = pic_size
-
-    def build(self):
-        raise NotImplementedError("No implementation for DataLoaderBuilder.build()")
-
-
 class feature_extraction_dataloader:
 
     def __init__(self, fixed_size=(224, 224), data_path=os.path.join('data_set', 'modeling_data'), bins=8):
