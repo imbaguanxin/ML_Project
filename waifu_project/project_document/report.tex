@@ -51,8 +51,8 @@
     On the other hand, within the machine learning community, if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations, they might have to tag those pictures manually.\\ 
     Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character, for example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.
     This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\ 
-    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape of the image contents and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of pre-trained ResNet[] as the image features and train them on non-neural-network models.\\ 
-    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with ResNet extracted features. 
+    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape of the image contents and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of pre-trained \texttt{ResNet}\cite{resnet} as the image features and train them on non-neural-network models.\\ 
+    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with \texttt{ResNet}\cite{resnet} extracted features. 
 
 
     \section{Technical Approach}
@@ -112,7 +112,7 @@
         \item \textbf{Neural Networks}
         
         Neural Networks(NN), first introduced by Warren McCulloch and Walter Pitts\cite{nn_init} are computing structures inspired by biological neural networks. This system is composed of several layers of artifical neurons that mimics the firing of biological neurons. \\
-        In this project, we used \texttt{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the ResNet\cite{resnet} that is pre-trained on ImageNet \cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
+        In this project, we used \texttt{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the \texttt{ResNet}\cite{resnet} that is pre-trained on \texttt{ImageNet}\cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
     \end{enumerate}
 
 
@@ -290,10 +290,8 @@
                 See the examples of them: Figure 13.
             \end{minipage}
             \begin{minipage}{0.3\textwidth}
-                \begin{center}
-                    \textbf{Non-Neural-Network Accuracies}
-                \end{center}
                 \begin{tabular}{|c|c|c|c|c|c|c|}
+                    \multicolumn{7}{c}{\textbf{Non-Neural-Network Accuracies}}\\
                     \hline
                      & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     model & train & test & time & train & test & time \\ \hline
@@ -414,7 +412,7 @@
             \item \textbf{Prediction Result}
             
             \vspace{3mm}
-            \begin{minipage}{0.3\textwidth}
+            \begin{minipage}{0.35\textwidth}
                 Compared to the previous method of feature extraction, features from ResNet is performing better.
                 The pattern of making mistakes between characters with, for example, similar hair color, was still persisting.
                 The severity was greatly ameliorated, however.
@@ -423,21 +421,19 @@
                 The best three model is LR, SVM and LDA
             \end{minipage}
             \begin{minipage}{0.5\textwidth}
-                \begin{center}
-                    \textbf{ResNet Feature Models Accuracy} 
-                \end{center}
-                    \begin{tabular}{|c|c|c|c|c|c|c|}
-                        \hline
-                            & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
-                        model & train & test & time & train & test & time \\ \hline
-                        LR & 1 & 0.941 & 1s & 0.94 & 0.71 & 1m 10s \\ \hline
-                        LDA  & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
-                        KNN & 0.887 & 0.832 & 1s & 0.609 & 0.414 & 3m 41s \\ \hline
-                        CART & 1 & 0.563 & 1s & 0.998 & 0.126 & 1m 38s \\ \hline
-                        RF & 1 & 0.882 & 4s & 0.998 & 0.51 & 13m 35s\\ \hline
-                        NB & 0.854 & 0.824 & 1s & 0.603 & 0.482 & 25s \\ \hline
-                        SVM  & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
-                    \end{tabular}
+                \begin{tabular}{|c|c|c|c|c|c|c|}
+                    \multicolumn{7}{c}{\textbf{ResNet Feature Models Accuracy} }\\
+                    \hline
+                        & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                    model & train & test & time & train & test & time \\ \hline
+                    LR & 1 & 0.941 & 1s & 0.94 & 0.71 & 1m 10s \\ \hline
+                    LDA  & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
+                    KNN & 0.887 & 0.832 & 1s & 0.609 & 0.414 & 3m 41s \\ \hline
+                    CART & 1 & 0.563 & 1s & 0.998 & 0.126 & 1m 38s \\ \hline
+                    RF & 1 & 0.882 & 4s & 0.998 & 0.51 & 13m 35s\\ \hline
+                    NB & 0.854 & 0.824 & 1s & 0.603 & 0.482 & 25s \\ \hline
+                    SVM  & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
+                \end{tabular}
             \end{minipage}
             
             
@@ -468,24 +464,24 @@
 
             \item \textbf{Model Implementation}
 
-            Models were pretrained in PyTorch using ImageNet so we would be starting with a good enough weight to get potential prediction improvement.
+            Models were pretrained in \texttt{PyTorch}\cite{pytorch} using ImageNet so we would be starting with a good enough weight to get potential prediction improvement.
             We used cross entropy function as our loss function and stochastic gradient descent as our optimizer with initial learning rate of $0.001$, and momentum of $0.9$.
-            Learning rate was also adjusted by decaying 0.1 each 7 epochs, using learning rate scheduler packaged within \texttt{PyTorch}.
+            Learning rate was also adjusted by decaying 0.1 each 7 epochs, using learning rate scheduler packaged within \texttt{PyTorch}\cite{pytorch}.
             Each model was trained for 25 epochs with training data and prediction results on both training and testing dataset were recorded after each epoch.
             \item \textbf{Prediction results}
             
             \vspace{3mm}
 
-            \begin{minipage}{0.45\textwidth}
-                We tested ResNet of 18, 34, 50, 101 layers packaged within \texttt{PyTorch} using the subset of data mentioned above.
+            \begin{minipage}{0.35\textwidth}
+                We tested ResNet of 18, 34, 50, 101 layers packaged within \texttt{PyTorch}\cite{pytorch} using the subset of data mentioned above.
                 The problem of distinguishing characters with similar features, e.g.\ same hair color, was persisting but was greatly ameliorated.
                 Only about $12\%$ of \texttt{violet\_evergarden} was recognized as \texttt{saber\_arutoria\_pendoragon}
             \end{minipage}
-            \begin{minipage}{0.45\textwidth}
-                \begin{center}
-                    \textbf{ResNet Accuracies}
-                \end{center}           
+            \begin{minipage}{0.45\textwidth}           
                 \begin{tabular}{|c|c|c|c|c|c|c|}
+                    \multicolumn{7}{c}{
+                        \textbf{ResNet Accuracies}
+                    }\\
                     \hline
                     & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     layers & train & test & time & train & test & time \\ \hline
