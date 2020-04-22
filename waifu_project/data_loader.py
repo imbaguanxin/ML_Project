@@ -17,18 +17,35 @@ warn = "[WARNING]"
 
 
 class WaifuDataLoader(object):
+    """
+    This class represents a simple interface of image data loaders with different data pre-processing,
+    e.g. feature extractions with different algorithms or using different packages
+    """
 
-    def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224)):
+    def __init__(self, data_path, pic_size):
         self.data_path = data_path
         self.pic_size = pic_size
 
     def load_image(self):
-        raise NotImplementedError("No implementation for DataLoaderBuilder.build()")
+        raise NotImplementedError("No implementation for WaifuDataLoader.load_image()")
 
 
 class FeatureExtractionDataLoader(WaifuDataLoader):
+    """
+    This class load and apply a feature extraction process on images as data pre-processing.
+    """
 
     def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224), bins=8):
+        """
+
+        Parameters
+        ----------
+        data_path: str
+        pic_size: tuple
+            shape of resized images, defaulted to (224, 224)
+        bins: int
+            number of bins in color histogram
+        """
         super().__init__(data_path=data_path, pic_size=pic_size)
         self.bins = bins
 
@@ -46,6 +63,25 @@ class FeatureExtractionDataLoader(WaifuDataLoader):
         return hist.flatten()
 
     def extract_single_image(self, pic_dir, hu_moments=True, haralick=True, histogram=True):
+        """
+        Extract features from a single image given its path.
+
+        Parameters
+        ----------
+        pic_dir: str
+            path of the image file
+        hu_moments: bool
+            whether to apply Hu moments on image
+        haralick: bool
+            whether to apply Haralick feature extraction on image
+        histogram: bool
+            whether to apply a color histogram on image
+
+        Returns
+        -------
+        numpy.array
+            feature data extracted from image
+        """
         if not (hu_moments or haralick or histogram):
             raise ValueError("{} Must choose at lease one image model!".format(warn))
         else:
@@ -61,12 +97,49 @@ class FeatureExtractionDataLoader(WaifuDataLoader):
             return image_features
 
     def single_rgb(self, pic_dir):
+        """
+        Read an image given path, resize it, return in RGB data.
+
+        Parameters
+        ----------
+        pic_dir: str
+            path of the image file
+
+        Returns
+        -------
+        numpy.array
+            RGB data of resized image
+        """
         image = cv2.imread(pic_dir)
         image = cv2.resize(image, self.pic_size)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return np.array(image).flatten()
 
     def load_image(self, hu_moments=True, haralick=True, histogram=True, get_rgb=True):
+        """
+        Load images stored in self.data_path, and apply some initial pre-processing and feature extraction.
+        Features extracted from each images will be stored as an element in the list returned.
+
+        Parameters
+        ----------
+        hu_moments: bool
+            whether to apply Hu moments on images
+        haralick: bool
+            whether to apply Haralick feature extraction on images
+        histogram: bool
+            whether to apply a color histogram on image
+        get_rgb: bool
+            whether to return the original RGB data as well
+
+        Returns
+        -------
+        images_features: list
+            feature data extracted from each image
+        images_rgb: list
+            original RGB data of each image
+        label: list
+            label of each image, the actual result of classification
+        """
         character_labels = os.listdir(self.data_path)
         print("{} Characters including {}".format(stat, character_labels))
 
@@ -98,6 +171,22 @@ class FeatureExtractionDataLoader(WaifuDataLoader):
         return images_features, images_rgb, labels
 
     def write_data(self, file_name='img_feature.mat', hu_moments=True, haralick=True, histogram=True, rgb=False):
+        """
+        Store the result of FeatureExtractionDataLoader.load_image() as a MATLAB file.
+
+        Parameters
+        ----------
+        file_name: str
+            file name that data will be stored into
+        hu_moments: bool
+            whether to apply Hu moments on images
+        haralick: bool
+            whether to apply Haralick feature extraction on images
+        histogram: bool
+            whether to apply a color histogram on image
+        rgb: bool
+            whether to return the original RGB data as well
+        """
         img_features, img_rgb, img_labels = self.load_image(hu_moments=hu_moments,
                                                             haralick=haralick,
                                                             histogram=histogram,
@@ -113,10 +202,27 @@ class FeatureExtractionDataLoader(WaifuDataLoader):
             'names': names
         }
         sio.savemat(path.join('data_set', file_name), data)
-        print("{} save to data_set/img_feature.mat".format(stat))
+        print("{} save to data_set/{}".format(stat, file_name))
 
 
 def img_stat(data_dir, num_channels=3):
+    """
+    Calculate the mean and standard deviation of all images given path of their directory.
+
+    Parameters
+    ----------
+    data_dir: str
+        path of labeled images
+    num_channels: int
+        number of channels to be calculated, in case of images stored in format other than RGB
+
+    Returns
+    -------
+    img_mean: numpy.array
+        mean of all images on each channel
+    img_std: numpy.array
+        standard deviation of all images on each channel
+    """
     cls_dirs = [d for d in os.listdir(data_dir) if path.isdir(path.join(data_dir, d))]
     channel_sum = np.zeros(num_channels)
     channel_sqr_sum = np.zeros(num_channels)
@@ -141,9 +247,25 @@ def img_stat(data_dir, num_channels=3):
 
 
 class PyTorchDataLoader(WaifuDataLoader):
+    """
+    This class load images by building a torchvision.DataLoader
+    and apply a normalization after resizing on images as data pre-processing.
+    """
 
     def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224),
                  channel_mean=None, channel_std=None):
+        """
+
+        Parameters
+        ----------
+        data_path: str
+        pic_size: tuple
+            shape of resized images, defaulted to (224, 224)
+        channel_mean: list or None
+            mean of images on each channel, defaulted to [0.485, 0.456, 0.406]
+        channel_std: list
+            standard deviation of images on each channel, defaulted to [0.229, 0.224, 0.225]
+        """
         super().__init__(data_path=data_path, pic_size=pic_size)
         if channel_mean is None:
             # use mean from ImageNet
@@ -157,6 +279,41 @@ class PyTorchDataLoader(WaifuDataLoader):
         }
 
     def load_image(self, data_transforms=None, batch_size=16, num_worker=4, train_proportion=0.8):
+        """
+        Build up a torch.utils.data.DataLoader with transformations.
+
+        The default transformation is firstly a crop into a random size and then resize to self.pic_size,
+        then a random horizontal flip of image,
+        and at last a normalization using mean and standard deviation stored in self.norm_para.
+
+        Then the data will be randomly split into a training and a testing set, and
+        return a torch.utils.data.DataLoader on each set.
+
+        Parameters
+        ----------
+        data_transforms: object or None
+            custom data transformations if the default transformation is not preferred.
+            Transformations should be similar or directly using objects from torchvision.transforms.
+        batch_size: int
+            number of samples per batch to load, directly passed to torch.utils.data.DataLoader
+        num_worker: int
+            number of sub-processes to use for data loading, directly passed to torch.utils.data.DataLoader
+        train_proportion: float
+            the proportion between training and testing set
+
+        Returns
+        -------
+        data_loader: dict
+            train -> torch.utils.data.DataLoader of training set
+            test -> torch.utils.data.DataLoader of testing set
+        dataset_sizes: dict
+            train -> size of training set
+            test -> size of testing set
+        character_names: list
+            names of image classes
+        data_transforms: torchvision.transforms
+            the transformation used in returned torch.utils.data.DataLoader
+        """
         if not data_transforms:
             data_transforms = tv.transforms.Compose([
                 tv.transforms.RandomResizedCrop(self.pic_size),
@@ -200,29 +357,50 @@ class PyTorchDataLoader(WaifuDataLoader):
 
 
 class ResNetTraditionalModel(WaifuDataLoader):
+    """
+    This class load and apply a feature extraction process using neural networks on images as data pre-processing.
+    """
 
     def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224),
-                 img_transform=None, model=tv.models.resnet18(pretrained=True), mean=None, std=None):
+                 data_transforms=None, model=tv.models.resnet18(pretrained=True),
+                 channel_mean=None, channel_std=None):
+        """
+
+        Parameters
+        ----------
+        data_path: str
+        pic_size: tuple
+            shape of resized images, defaulted to (224, 224)
+        data_transforms: object or None
+            custom data transformations if the default transformation is not preferred.
+            Transformations should be similar or directly using objects from torchvision.transforms.
+        model: torch.nn.Module or None
+            neural network works as feature extractor, defaulted to ResNet18 implemented in torchvision.models.resnet
+        channel_mean: list or none
+            mean of images on each channel, defaulted to the mean of images in data_path
+        channel_std: list or none
+            standard deviation of images on each channel, defaulted to the standard deviation of images in data_path
+        """
         super().__init__(data_path, pic_size)
         mean_dataset, std_dataset = img_stat(data_path)
-        if mean is None:
+        if channel_mean is None:
             self.mean = mean_dataset
         else:
-            self.mean = mean
+            self.mean = channel_mean
 
-        if std is None:
+        if channel_std is None:
             self.std = std_dataset
         else:
-            self.std = std
+            self.std = channel_std
 
-        if img_transform is None:
+        if data_transforms is None:
             self.img_transform = tv.transforms.Compose([
                 tv.transforms.Resize((224, 224)),
                 tv.transforms.ToTensor(),
                 tv.transforms.Normalize(self.mean, self.std)
             ])
         else:
-            self.img_transform = img_transform
+            self.img_transform = data_transforms
         self.model = model
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model.eval()
@@ -230,6 +408,17 @@ class ResNetTraditionalModel(WaifuDataLoader):
         print("[STATUS] Using device: {}".format(self.device))
 
     def single_image_to_vec(self, raw_img):
+        """
+        Apply data transforms stored in self.img_transform, and apply the neural network stored in self.model.
+
+        Parameters
+        ----------
+        raw_img: PIL.Image.Image
+
+        Returns
+        -------
+        numpy.array
+        """
         img = self.img_transform(raw_img)
         img = img.unsqueeze(0)
         if torch.cuda.is_available():
@@ -238,6 +427,18 @@ class ResNetTraditionalModel(WaifuDataLoader):
         return outputs
 
     def load_image(self):
+        """
+        Load images stored in self.data_path, and
+         apply a neural network model as initial pre-processing and feature extraction.
+        Features extracted from each images will be stored as an element in the list returned.
+
+        Returns
+        -------
+        img_data: list
+            feature data extracted from each image
+        label: list
+            label of each image, the actual result of classification
+        """
         characters_folders = os.listdir(self.data_path)
 
         img_data = []
@@ -264,6 +465,14 @@ class ResNetTraditionalModel(WaifuDataLoader):
         return img_data, labels
 
     def write_data(self, file_name='resnet_img_feature.mat'):
+        """
+        Store the result of ResNetTraditionalModel.load_image() as a MATLAB file.
+
+        Parameters
+        ----------
+        file_name: str
+            file name that data will be stored into
+        """
         img_features, img_labels = self.load_image()
         names = np.unique(img_labels)
         encoder = LabelEncoder()

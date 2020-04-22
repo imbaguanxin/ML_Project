@@ -4,6 +4,20 @@ import shutil
 
 
 def data_cleaning(moeimouto=True, self_collected=True, destination="modeling_data", force_write=False):
+    """
+    Copy and rename images stored in data_set/moeimouto-filtered and data_set/self-collected into data_set/{destination}.
+
+    Parameters
+    ----------
+    moeimouto: bool
+        whether to include images in data_set/moeimouto-filtered
+    self_collected: bool
+        whether to include images in data_set/self-collected
+    destination: str
+        destination folder
+    force_write: bool
+        whether to force write in the destination folder if it has already exist
+    """
     destination_path = os.path.join('data_set', destination)
     # clean the destination path
     if os.path.exists(destination_path):
@@ -19,6 +33,14 @@ def data_cleaning(moeimouto=True, self_collected=True, destination="modeling_dat
 
 
 def moeimouto_clean_up(destination="modeling_data"):
+    """
+    Copy images stored in data_set/moeimouto-filtered into data_set/{destination}.
+
+    Parameters
+    ----------
+    destination: str
+        destination folder
+    """
     source_path = os.path.join('data_set', 'moeimouto-faces-filtered')
     destination_path = os.path.join('data_set', destination)
     source_pics_folders = os.listdir(source_path)
@@ -32,12 +54,21 @@ def moeimouto_clean_up(destination="modeling_data"):
         pics = os.listdir(pic_folder_path)
         for pic in pics:
             if not re.match(".*csv", pic):
+                # handle the statistic file stored in moeimouto data
                 shutil.copy(os.path.join(pic_folder_path, pic), destination_folder)
                 os.rename(os.path.join(destination_folder, pic), os.path.join(destination_folder, pic))
         print("[STATUS] {} copy work finished".format(folder))
 
 
 def self_collected_clean_up(destination="modeling_data"):
+    """
+    Copy images stored in data_set/self-collected into data_set/{destination}.
+
+    Parameters
+    ----------
+    destination: str
+        destination folder
+    """
     # set source path and destination path
     source_path = os.path.join('data_set', 'self-collected')
     destination_path = os.path.join('data_set', destination)
