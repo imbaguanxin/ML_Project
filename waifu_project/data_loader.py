@@ -1,25 +1,35 @@
 import os
-import time
+from os import path
+
 import PIL
-from os.path import isdir
 import cv2
 import mahotas
-import matplotlib.pyplot as plt
 import numpy as np
-import scipy.io as sio
-from sklearn.preprocessing import LabelEncoder
+import pandas as pd
 import torch
 import torchvision as tv
+from matplotlib import pyplot as plt
+from scipy import io as sio
+from sklearn.preprocessing import LabelEncoder
 
 stat = "[STATUS]"
 warn = "[WARNING]"
 
 
-class feature_extraction_dataloader:
+class WaifuDataLoader(object):
 
-    def __init__(self, fixed_size=(224, 224), data_path=os.path.join('data_set', 'modeling_data'), bins=8):
-        self.path = data_path
-        self.pic_size = fixed_size
+    def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224)):
+        self.data_path = data_path
+        self.pic_size = pic_size
+
+    def load_image(self):
+        raise NotImplementedError("No implementation for DataLoaderBuilder.build()")
+
+
+class FeatureExtractionDataLoader(WaifuDataLoader):
+
+    def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224), bins=8):
+        super().__init__(data_path=data_path, pic_size=pic_size)
         self.bins = bins
 
     def hu_moments(self, image):
@@ -57,7 +67,7 @@ class feature_extraction_dataloader:
         return np.array(image).flatten()
 
     def load_image(self, hu_moments=True, haralick=True, histogram=True, get_rgb=True):
-        character_labels = os.listdir(self.path)
+        character_labels = os.listdir(self.data_path)
         print("{} Characters including {}".format(stat, character_labels))
 
         images_features = []
@@ -66,11 +76,11 @@ class feature_extraction_dataloader:
 
         # loading images from folders
         for index, training_class in zip(range(len(character_labels)), character_labels):
-            image_folder = os.path.join(self.path, training_class)
+            image_folder = path.join(self.data_path, training_class)
             pics_name = os.listdir(image_folder)
             print("{} {}/{} processing folder: {}".format(stat, index + 1, len(character_labels), training_class))
             for pic in pics_name:
-                pic_dir = os.path.join(image_folder, pic)
+                pic_dir = path.join(image_folder, pic)
                 feature = self.extract_single_image(pic_dir,
                                                     hu_moments=hu_moments,
                                                     haralick=haralick,
@@ -102,19 +112,19 @@ class feature_extraction_dataloader:
             'labels': target,
             'names': names
         }
-        sio.savemat(os.path.join('data_set', file_name), data)
+        sio.savemat(path.join('data_set', file_name), data)
         print("{} save to data_set/img_feature.mat".format(stat))
 
 
 def img_stat(data_dir, num_channels=3):
-    cls_dirs = [d for d in os.listdir(data_dir) if isdir(os.path.join(data_dir, d))]
+    cls_dirs = [d for d in os.listdir(data_dir) if path.isdir(path.join(data_dir, d))]
     channel_sum = np.zeros(num_channels)
     channel_sqr_sum = np.zeros(num_channels)
     pixel_num = 0
 
     for i, d in enumerate(cls_dirs):
-        img_paths = [os.path.join(data_dir, d, img_file)
-                     for img_file in os.listdir(os.path.join(data_dir, d))]
+        img_paths = [path.join(data_dir, d, img_file)
+                     for img_file in os.listdir(path.join(data_dir, d))]
         print("{} Extract img color mean and std {}".format(stat, d))
         for img_path in img_paths:
             orig_img = cv2.imread(img_path)
@@ -130,22 +140,23 @@ def img_stat(data_dir, num_channels=3):
     return img_mean, img_std
 
 
-class pytorch_dataloader():
+class PyTorchDataLoader(WaifuDataLoader):
 
-    def __init__(self, data_dir=os.path.join('data_set', 'modeling_data'), size=(224, 224),
+    def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224),
                  channel_mean=None, channel_std=None):
+        super().__init__(data_path=data_path, pic_size=pic_size)
         if channel_mean is None:
+            # use mean from ImageNet
             channel_mean = [0.485, 0.456, 0.406]
         if channel_std is None:
+            # use std from ImageNet
             channel_std = [0.229, 0.224, 0.225]
         self.norm_para = {
             'train': [channel_mean, channel_std],
             'test': [channel_mean, channel_std]
         }
-        self.data_dir = data_dir
-        self.pic_size = size
 
-    def gen_loader(self, data_transforms=None, batch_size=16, num_worker=4, train_proportion=0.8):
+    def load_image(self, data_transforms=None, batch_size=16, num_worker=4, train_proportion=0.8):
         if not data_transforms:
             data_transforms = tv.transforms.Compose([
                 tv.transforms.RandomResizedCrop(self.pic_size),
@@ -154,7 +165,7 @@ class pytorch_dataloader():
                 tv.transforms.Normalize(self.norm_para['train'][0], self.norm_para['train'][1])
             ])
 
-        anime_data = tv.datasets.ImageFolder(self.data_dir, data_transforms)
+        anime_data = tv.datasets.ImageFolder(self.data_path, data_transforms)
         if train_proportion < 0.4 or train_proportion >= 1:
             print("Training set size not good! Set to default: 0.8")
             train_proportion = 0.8
@@ -188,11 +199,12 @@ class pytorch_dataloader():
         plt.pause(0.001)
 
 
-class resnet_traditional_model:
+class ResNetTraditionalModel(WaifuDataLoader):
 
-    def __init__(self, img_transform=None, model=tv.models.resnet18(pretrained=True), mean=None, std=None):
-        data_dir = os.path.join('data_set', 'modeling_data')
-        mean_dataset, std_dataset = img_stat(data_dir)
+    def __init__(self, data_path=path.join('data_set', 'modeling_data'), pic_size=(224, 224),
+                 img_transform=None, model=tv.models.resnet18(pretrained=True), mean=None, std=None):
+        super().__init__(data_path, pic_size)
+        mean_dataset, std_dataset = img_stat(data_path)
         if mean is None:
             self.mean = mean_dataset
         else:
@@ -225,34 +237,34 @@ class resnet_traditional_model:
         outputs = self.model(img).detach().cpu().clone().numpy()[0]
         return outputs
 
-    def feature_extraction(self):
-        modeling_data_path = os.path.join('data_set', 'modeling_data')
-        characters_folders = os.listdir(modeling_data_path)
+    def load_image(self):
+        characters_folders = os.listdir(self.data_path)
 
         img_data = []
         labels = []
 
-        since = time.time()
+        since = pd.to_datetime('now')
         for i, character in enumerate(characters_folders):
             print('[STATUS] {}/{} Processing {}'.format(i + 1, len(characters_folders), character))
-            pic_folder = os.path.join(modeling_data_path, character)
+            pic_folder = path.join(self.data_path, character)
             all_pics = os.listdir(pic_folder)
             for pic in all_pics:
-                pic_dir = os.path.join(pic_folder, pic)
+                pic_dir = path.join(pic_folder, pic)
                 raw_img = PIL.Image.open(pic_dir).convert('RGB')
                 output = self.single_image_to_vec(raw_img)
                 img_data.append(output)
                 labels.append(character)
-        time_elapsed = time.time() - since
+        time_elapsed = pd.to_datetime('now') - since
 
-        print('{} Feature extraction complete in {:.0f}m {:.0f}s'.format(stat, time_elapsed // 60, time_elapsed % 60))
+        print('{} Feature extraction complete in {:.0f}m {:.0f}s'
+              .format(stat, time_elapsed.total_seconds() // 60, time_elapsed.total_seconds() % 60))
         print("{} feature vector shape: {}".format(stat, np.array(img_data).shape))
         print("{} label vector shape: {}".format(stat, np.array(labels).shape))
 
         return img_data, labels
 
     def write_data(self, file_name='resnet_img_feature.mat'):
-        img_features, img_labels = self.feature_extraction()
+        img_features, img_labels = self.load_image()
         names = np.unique(img_labels)
         encoder = LabelEncoder()
         target = encoder.fit_transform(img_labels)
@@ -262,11 +274,11 @@ class resnet_traditional_model:
             'labels': target,
             'names': names
         }
-        filename = os.path.join('data_set', file_name)
+        filename = path.join('data_set', file_name)
         sio.savemat(filename, data)
-        print("{} save to {}".format(stat, os.path.join(filename)))
+        print("{} save to {}".format(stat, path.join(filename)))
 
 
 if __name__ == '__main__':
-    rn_tr = resnet_traditional_model()
-    rn_tr.write()
+    rn_tr = ResNetTraditionalModel()
+    rn_tr.write_data()
