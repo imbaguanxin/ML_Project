@@ -181,13 +181,13 @@
             \item \textbf{Self-collected Dataset}
 
             Due to the drawbacks of the existing dataset, we also collected some images with better quality.
-            Totally, we collected images of 7 characters, each with over 100 images, manually from animations and illustrations published on web.
+            Totally, we collected images of 11 characters, each with over 100 images, manually from animations and illustrations published on web.
             These images are in similar format as images in Nagadomi's dataset, square-like images of faces of anime characters but with higher resolution (about 400 * 400) and better quality (high quality fan-arts).
             \item \textbf{Subset-ing the whole dataset}
 
-            After the manual filtering process, there remains 163 characters.
+            After the manual filtering process, there remains 158 characters in the Nagadomi's dataset.
             Since it was impracticable to train our models and tune hyperparameters using all of the data due to lack of computing power and time, we decide to manually pick a subset of characters from the whole dataset, each with over 100 images, to tune hyper-parameters.
-            The training and testing on the whole dataset was performed on the tuned hyperparameter and the results will be reported.
+            The training and testing on the whole dataset, totally 166 characters, was performed on the tuned hyperparameter and the results will be reported.
             See Appendixes for the number of images in each class.
         \end{itemize}
         \item \textbf{Non-Neural-Network Models with Image Features inputs}
@@ -341,7 +341,7 @@
 
                 Similar to the previous part, we iterate over several C to see which panelty is better generally. Then we find out its cooresponding regularization strength.
 
-                Testing results charts: Figure 8. As shown in the charts, we select $C = 1.1, penalty = l_2$
+                Testing results charts: Figure 8. As shown in the charts, we select $C = 0.9, penalty = l_2$
 
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
@@ -356,7 +356,7 @@
                 \end{figure}
                 \item K Nearest Neighbors classifier
 
-                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.The best $k$ is 8.
+                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.The best $k$ is 5.
                 % \begin{figure}[h!]
                 %     \centering
                 %     \includegraphics[width=0.5\linewidth]{images/res_tradi_KNN.png}
@@ -365,7 +365,7 @@
 
                 \item Random Forest classifier
 
-                We have tried forests with different loss function, Gini impurity function and Information Entropy function, both accuracy and computing time was record. See Figure 10. As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $500$.
+                We have tried forests with different loss function, Gini impurity function and Information Entropy function, both accuracy and computing time was record. See Figure 10. As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $600$.
 
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
@@ -389,7 +389,7 @@
                     See Figure 11.
                     For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
                     The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value.
-                    The best hyperparameter we have is $kernel = poly, C = 1.0$ and $degree = 4$.
+                    The best hyperparameter we have is $kernel = poly, C = 1.0$ and $degree = 9$.
                 \end{minipage}
                 \begin{minipage}{.4\textwidth}
                     \includegraphics[width=0.8\textwidth]{images/res_tradi_SVM_penalty2.png}
@@ -405,10 +405,10 @@
             \begin{center}
                 \begin{tabular}{|c|c|}
                     \hline
-                    LR&C = 1.1, penalty = $l_2$\\ \hline
-                    KNN& $k = 8$\\ \hline
-                    RT& Loss Function = gini, n\_estimators = 500\\ \hline
-                    SVM& Kernel = poly, degree = 4, C = 1\\ \hline
+                    LR&C = 0.9, penalty = $l_2$\\ \hline
+                    KNN& $k = 5$\\ \hline
+                    RT& Loss Function = gini, n\_estimators = 600\\ \hline
+                    SVM& Kernel = poly, degree = 9, C = 1\\ \hline
                 \end{tabular}
             \end{center}
             \item \textbf{Prediction Result}
@@ -428,13 +428,13 @@
                     \hline
                     & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     model & train & test & time & train & test & time \\ \hline
-                    LR & 1 & 0.941 & 1s & 0.94 & 0.71 & 1m 10s \\ \hline
-                    LDA & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
-                    KNN & 0.887 & 0.832 & 1s & 0.609 & 0.414 & 3m 41s \\ \hline
-                    CART & 1 & 0.563 & 1s & 0.998 & 0.126 & 1m 38s \\ \hline
-                    RF & 1 & 0.882 & 4s & 0.998 & 0.51 & 13m 35s\\ \hline
-                    NB & 0.854 & 0.824 & 1s & 0.603 & 0.482 & 25s \\ \hline
-                    SVM & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
+                    LR & 1 & 0.911 & 1s & 0.94 & 0.71 & 1m 26s \\ \hline
+                    LDA & 1 & 0.927 & 1s & 0.919 & 0.756 & 2s \\ \hline
+                    KNN & 0.891 & 0.859 & 1s & 0.619 & 0.421 & 3m 53s \\ \hline
+                    CART & 1 & 0.503 & 1s & 0.998 & 0.135 & 1m 45s \\ \hline
+                    RF & 1 & 0.8843 & 8s & 0.998 & 0.51 & 13m 35s\\ \hline
+                    NB & 0.839 & 0.775 & 1s & 0.603 & 0.482 & 25s \\ \hline
+                    SVM & 1 & 0.911 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
                 \end{tabular}
             \end{minipage}
 
@@ -499,10 +499,10 @@
 
     \section{Participants Contribution}
     % Please list the name of the participants. For each participant explain in details the role he/she played in the project: explain which methods was implemented by which member, which dataset was processed by which member, which experimental results were generated by which members, etc.
-    \textbf{Data Collecting}: Ziqian Ge found the Nagadomi's Anime Face Character Dataset. Xin Guan did the manual data cleaning. Ziqian Ge collected images for \texttt{Astolfo}, \texttt{Atalanta}, \texttt{Illyasviel\_von\_einzbern}, \texttt{Jeanne\_dArc}, and \texttt{Mordred} in the self-collected dataset; Xin Guan collected images for \texttt{Saber\_Arutoria\_Pendoragon}, \texttt{Tohsaka\_Rin}, \texttt{Mato\_Sakura}, \texttt{Rider\_Medusa}, \texttt{Misaka\_Mikoto}, and \texttt{Violet\_Evergarden} in the self-collected dataset.\\
+    \textbf{Data Collecting}: Ziqian Ge found the Nagadomi's Anime Face Character Dataset. Xin Guan did the manual data cleaning. Ziqian Ge collected images for \texttt{Astolfo}, \texttt{Atalanta}, \texttt{Illyasviel\_von\_einzbern}, \texttt{Jeanne\_dArc}, and \texttt{Mordred} in the self-collected dataset; Xin Guan collected images for \texttt{Saber\_Arutoria\_Pendoragon}, \texttt{Tohsaka\_Rin}, \texttt{Mato\_Sakura}, \texttt{Rider\_Medusa}, \texttt{Misaka\_Mikoto}, and \texttt{Violet\_Evergarden} in the self-collected dataset. See the number of image in each class in the appendix page.\\
     \textbf{Data preprocessing}: Xin Guan did the data reforming in \texttt{data\_cleaning.py} and completed the feature extractors of Non-Neural-Network data loaders(class \texttt{feature\_extraction\_dataloader} and \texttt{resnet\_traditional\_model} in \texttt{data\_loader.py}). Ziqian Ge did the pytorch data loader and RGB information extractor (class \texttt{pytorch\_dataloader} and function \texttt{img\_stat} in \texttt{data\_loader.py}) \\
     \textbf{Model Training and Hyper parameter Tunning}: Xin Guan finished the model structures for non-neural-network models (\texttt{resnet\_traditional\_models.ipynb} and \texttt{traditional\_models.ipynb}); Ziqian Ge did the neural-network constructing and traning(\texttt{neural\_network.ipynb}). Xin Guan tuned SVM and RT's parameters along with visualization; Ziqian Ge tuned LR and KNN's parameters along with visualization. \\
-    \textbf{Project Writing}: Xin Guan Completed Introduction, Technical Approach and Non-Neural-Network Models With ResNet Last Layer Inputs in Experimental Results. Ziqian Ge finished Dataset Overview, Non-Neural-Network Models with Image Features inputs and Neural-Network Model in Technical Approach along with the Participants Contribution.
+    \textbf{Project Writing}: Xin Guan Completed Introduction, Technical Approach and Non-Neural-Network Models With ResNet Last Layer Inputs in Experimental Results. Ziqian Ge finished Dataset Overview, Non-Neural-Network Models with Image Features inputs and Neural-Network Model in Technical Approach, the Participants Contribution along with Appendixes. Also, Ziqian Ge performed the review and formatting of the writing.
     \vspace{10mm}
     % ** Please do not change the size of the fonts.
 
