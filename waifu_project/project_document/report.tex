@@ -6,6 +6,8 @@
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{cite}
 \usepackage{wrapfig}
+\usepackage{supertabular}
+\usepackage{appendix}
 
 
 \title{Recognize Animation Characters with Machine Learning}
@@ -20,7 +22,7 @@
 
     \abstract
     To takle the problem of recognizing untagged image of animation characters, this project tested 2 ways of image feature extractions and used both neural network and non-neural-network models to perform the prediction. The accuracy of recognition is good (above 90\%) if with a modern, clean, high-resolution image datasets. The neural-network model can even reach accuracy of 99\%.
-    
+
 
     \vspace{2mm}
 
@@ -34,7 +36,7 @@
                     \centering
                     \includegraphics[width=0.8\linewidth, scale=1]{./images/tosaka_grid.png}
                     \caption{Same Character by different illustrators}
-                \end{subfigure} & 
+                \end{subfigure} &
                 \begin{subfigure}[h]{0.4\linewidth}
                     \centering
                     \includegraphics[width=0.8\linewidth, scale=1]{./images/saber_grid.png}
@@ -44,15 +46,15 @@
         \end{center}
         \caption{Various Looks of a Single Character and Similar but different Characters}
     \end{figure}
-    \\ 
+    \\
     Untagged illustrations would make some trouble for animation community members.
     Large number of 'Who is she/he' questions are emerging on social networks plantforms like Twitter, 2Chan and Bilibili.
     Even some video makers are posting works on answering those questions.
-    On the other hand, within the machine learning community, if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations, they might have to tag those pictures manually.\\ 
+    On the other hand, within the machine learning community, if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations, they might have to tag those pictures manually.\\
     Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character. For example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.
-    This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\ 
-    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape contents from the images and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of a pre-trained \texttt{ResNet}\cite{resnet} as the image features and train them on non-neural-network models.\\ 
-    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset\cite{dataset}. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with \texttt{ResNet}\cite{resnet} extracted features. 
+    This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\
+    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape contents from the images and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of a pre-trained \texttt{ResNet}\cite{resnet} as the image features and train them on non-neural-network models.\\
+    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset\cite{dataset}. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with \texttt{ResNet}\cite{resnet} extracted features.
 
 
     \section{Technical Approach}
@@ -63,54 +65,54 @@
 
     \begin{enumerate}
         \item \textbf{Feature Extraction Algorithms}
-        
+
         Initially, we naively flatterned the RGB channels of a image to a vector as the input of the models, but find out that about 5-15 minutes are required to train a model even on the small dataset collected by ourselves. Additionaly, the prediction is not accurate since the flatterning process destroies the spacial relation between each pixels. Therefore, we find some way to extract the features of a image.
         \begin{itemize}
             \item \textbf{Image Moment}
-            
+
             Image moment is a certain particular weighted average of the image pixels' intensities. A uniqueness theorem \cite{img_moment} claim that a piecewise continuous 2D function $f(x,y)$ with nonzero values in a finite part of the $xy$ plane, then moments of all orders exist and moment sequence is uniquely determined by $f(x,y)$. Image moments are useful to describe the shape of a image content. In this project, we made use of pre-implemented function $hu\_moment()$ in \texttt{OpenCV}\cite{opencv_library} to process the image.
             \item \textbf{Haralic Texture}
-            
+
             Haralic texture, proposed by R. M. Haralick et al. in 1973, is describing a textural features "based on graytone spatial dependancies" \cite{haralick}. This algorithm is trying to conclude the texture of a surface and the "structural arrangement of surfaces and their relationship to the surrounding environment"[]. In this project, we made use of the algorithm to extract the texture information of the images. The extraction of Haralic Textures is implemented in python package \texttt{mahotas}\cite{mahotas}, with function $mahotas.features.haralick()$
             \item \textbf{Histogram of Colors}
-            
+
             In order to zip the information of color of a image, we decide to calculate how color are ditributed in $HSV$ channels. To discretize the continuous distribution of colors, we decide to use 8 bins in each channel and thus store the histogram of colors to a vector. Again, we made use of \texttt{OpenCV}\cite{opencv_library} to process the image.
         \end{itemize}
         \item \textbf{Prediction Models}
-        
-        In this project, we made use of many of the models that we learned in this course as well as some models in the prerequisite of this course. The implementation of these models are from python package \texttt{scikit-learn}\cite{scikit-learn}. 
-            \begin{itemize}
-                \item \textbf{Logistic Regression}
-                
-                Logistic regression is used to model the probability of a certain class. With the feature input $x \in \mathbf{R}^n$, calculate $w^Tx + b, w \in \mathbf{R}^n, b \in \mathbf{R}$ the probability of $x$ in certain class is denoted by 
-                $p(x = X | w) = \frac{1}{1 + e^{-(w^Tx + b)}}$
-                In order to tacle overfitting problem, we also add a regularization strength $\lambda$. $\lambda$ is a hyperparameter need to be determined before training. Training logistic regression is through gradient descent. In \texttt{scikit-learn}\cite{scikit-learn}, this problem is formed as a optimization problem: 
-                $\min_{w, c} f(w) + c\sum_{i=1}^{n}\frac{1}{1 + e^{-y_i(w^Tx_i + b)}} $ 
-                where $f(w) = ||w||^2_2$ if we choose $l_2$ penalty.\\ 
-                In order to enable the model to classify multi-labels data, we train $k$ models for $k$ labels. Each model is a "one-vs-rest" classifier. When testing a given input, just find out the highest probability of all models and assign its class to the input.
-                \item \textbf{Linear Discriminant Analysis}
-                
-                Linear discriminat analysis(LDA) is a Fisher's linear discriminant\cite{fisherDA}. It is closely related to analysis of variance (ANOVA) and regression analysis. LDA assumes that the conditional probability density functions are normally distributed and the class covariances are identical.           In this project, we uses multiclass LDA. This multiclass generalization is due to C. R. Rao\cite{multiLDA}. Also, we directly use the implemented model from \texttt{Scikit-learn}\cite{scikit-learn}
 
-                \item \textbf{k-nearest neighbors}
-                
-                $k$-nearest neighbors(kNN) is a non-parametric passive model used for classification. Upon an input object, the model classify by a vote of its neighbors. The most often appeared class in its $k$ nearest neighbors are the output class. $k$ is a hyperparameter that we need to decide before the training.
-                \item \textbf{Decision Trees}
-                
-                Decision Trees are a non-parametric supervised learning method used for classification. The model is in a tree structures where its leaves represent class labels and branches represent conjunctions of features that lead to those classes. In this project we directly use the Classification and Regression Tree (CART) implemented in \texttt{scikit-learn}\cite{scikit-learn}.
-                \item \textbf{Random Forest}
-                
-                Random Forest is constructing a mutiple decisions trees at training time and outputting the class that is the mode of the classes of individual trees. This method is first proposed by Tin Kam Ho in 1995\cite{random_forest}. Training process, called bagging\cite{rf_bagging}, is repeatly select a random sample with replacement of the training set and fits a decision tree with these samples. We made use of the $RandomForestClassifier$ of \texttt{scikit-learn}\cite{scikit-learn} to perform the classification job.
-                \item \textbf{Gaussian Naive Bayes}
-                
-                Naive Bayes is based on applying Bayes theorem with assumptions of features are mutually independent with each other. In multi-class classification, we can calculate the value of the probability of all classes of a given input under the naive bayes assumption and find the class with the highest probability. Gaussian Naive Bayes is just making the assumption that the features are normally distributed. 
-                \item \textbf{Support Vector Machines}
-                
-                Support Vector Machines(SVMs) are supervised learning models used for regression and classification problems. With the assumption that the data is seperatable with a hyperplane, SVM is trying to find the hyperplane with the maximized margin between the data point in each class and the hyperplane.
-                We made use of the C-Support Vector Classification (SVC) provided by \texttt{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernel(if polynomial function is selected as kernel).
-            \end{itemize}
+        In this project, we made use of many of the models that we learned in this course as well as some models in the prerequisite of this course. The implementation of these models are from python package \texttt{scikit-learn}\cite{scikit-learn}.
+        \begin{itemize}
+            \item \textbf{Logistic Regression}
+
+            Logistic regression is used to model the probability of a certain class. With the feature input $x \in \mathbf{R}^n$, calculate $w^Tx + b, w \in \mathbf{R}^n, b \in \mathbf{R}$ the probability of $x$ in certain class is denoted by
+            $p(x = X | w) = \frac{1}{1 + e^{-(w^Tx + b)}}$
+            In order to tacle overfitting problem, we also add a regularization strength $\lambda$. $\lambda$ is a hyperparameter need to be determined before training. Training logistic regression is through gradient descent. In \texttt{scikit-learn}\cite{scikit-learn}, this problem is formed as a optimization problem:
+            $\min_{w, c} f(w) + c\sum_{i=1}^{n}\frac{1}{1 + e^{-y_i(w^Tx_i + b)}} $
+            where $f(w) = ||w||^2_2$ if we choose $l_2$ penalty.\\
+            In order to enable the model to classify multi-labels data, we train $k$ models for $k$ labels. Each model is a "one-vs-rest" classifier. When testing a given input, just find out the highest probability of all models and assign its class to the input.
+            \item \textbf{Linear Discriminant Analysis}
+
+            Linear discriminat analysis(LDA) is a Fisher's linear discriminant\cite{fisherDA}. It is closely related to analysis of variance (ANOVA) and regression analysis. LDA assumes that the conditional probability density functions are normally distributed and the class covariances are identical. In this project, we uses multiclass LDA. This multiclass generalization is due to C. R. Rao\cite{multiLDA}. Also, we directly use the implemented model from \texttt{Scikit-learn}\cite{scikit-learn}
+
+            \item \textbf{k-nearest neighbors}
+
+            $k$-nearest neighbors(kNN) is a non-parametric passive model used for classification. Upon an input object, the model classify by a vote of its neighbors. The most often appeared class in its $k$ nearest neighbors are the output class. $k$ is a hyperparameter that we need to decide before the training.
+            \item \textbf{Decision Trees}
+
+            Decision Trees are a non-parametric supervised learning method used for classification. The model is in a tree structures where its leaves represent class labels and branches represent conjunctions of features that lead to those classes. In this project we directly use the Classification and Regression Tree (CART) implemented in \texttt{scikit-learn}\cite{scikit-learn}.
+            \item \textbf{Random Forest}
+
+            Random Forest is constructing a mutiple decisions trees at training time and outputting the class that is the mode of the classes of individual trees. This method is first proposed by Tin Kam Ho in 1995\cite{random_forest}. Training process, called bagging\cite{rf_bagging}, is repeatly select a random sample with replacement of the training set and fits a decision tree with these samples. We made use of the $RandomForestClassifier$ of \texttt{scikit-learn}\cite{scikit-learn} to perform the classification job.
+            \item \textbf{Gaussian Naive Bayes}
+
+            Naive Bayes is based on applying Bayes theorem with assumptions of features are mutually independent with each other. In multi-class classification, we can calculate the value of the probability of all classes of a given input under the naive bayes assumption and find the class with the highest probability. Gaussian Naive Bayes is just making the assumption that the features are normally distributed.
+            \item \textbf{Support Vector Machines}
+
+            Support Vector Machines(SVMs) are supervised learning models used for regression and classification problems. With the assumption that the data is seperatable with a hyperplane, SVM is trying to find the hyperplane with the maximized margin between the data point in each class and the hyperplane.
+            We made use of the C-Support Vector Classification (SVC) provided by \texttt{scikit-learn}\cite{scikit-learn}. We selected the "one-vs-one" scheme during the training. Hyperparameters need selection: regularization parameter $C$, kernel funciton, and the degree of polynomial kernel(if polynomial function is selected as kernel).
+        \end{itemize}
         \item \textbf{Neural Networks}
-        
+
         Neural Networks(NN), first introduced by Warren McCulloch and Walter Pitts\cite{nn_init} are computing structures inspired by biological neural networks. This system is composed of several layers of artifical neurons that mimics the firing of biological neurons. \\
         In this project, we used \texttt{pytorch}\cite{pytorch} to form and train neural networks. Particularly, we borrowed the \texttt{ResNet}\cite{resnet} that is pre-trained on \texttt{ImageNet}\cite{imgnet} and added a layer of neurons representing our class labels and trained the net with our dataset.
     \end{enumerate}
@@ -124,7 +126,7 @@
         Firstly, we manually cleaned the Nagadomi's Anime Face Character Dataset and generated our own dataset with better image quality and modern animation characters.
         Then, we performed image pre-processing and feature extractions to generate three union of data: color-texture-shape information, ResNet-processed information and normalized RGB information.
         Then we designed different models according to these unions of data.
-        
+
         According to our models, we did hyperparameter tuning on the self-collected dataset and then trained the model with the optimized hyperparameter on the whole dataset and evaluate the prediction result.
         Following are the detailed description of each step in the working pipeline.
     \end{minipage}
@@ -265,7 +267,7 @@
                         \includegraphics[width=0.65\linewidth]{images/svm_kernel.png}
                     \end{center}
                 \end{minipage}
-                
+
                 % \includegraphics[width=0.75\linewidth]{images/svm_c_degree.png}
             \end{enumerate}
             Here is a summary of the hyper-parameters:
@@ -293,19 +295,19 @@
                 \begin{tabular}{|c|c|c|c|c|c|c|}
                     \multicolumn{7}{c}{\textbf{Non-Neural-Network Accuracies}}\\
                     \hline
-                     & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                    & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     model & train & test & time & train & test & time \\ \hline
                     LR & 0.940 & 0.824 & $<1s$ & 0.456 & 0.335 & $38s$ \\ \hline
-                    LDA  & 0.984 & 0.529 & $<1s$ & 0.422 & 0.282 & $1s$ \\ \hline
+                    LDA & 0.984 & 0.529 & $<1s$ & 0.422 & 0.282 & $1s$ \\ \hline
                     KNN & 0.784 & 0.739 & $<1s$ & 0.454 & 0.269 & $1m$ $56s$ \\ \hline
                     CART & 1.0 & 0.672 & $<1s$ & 0.998 & 0.218 & $9s$ \\ \hline
                     RF & 1.0 & 0.866 & $3s$ & 0.998 & 0.551 & $5m$ $8s$\\ \hline
                     NB & 0.649 & 0.462 & $<1s$ & 0.393 & 0.132 & $13s$ \\ \hline
-                    SVM  & 0.946 & 0.824 & $<1s$ & 0.661 & 0.393 & $2m$ $15s$ \\ \hline
+                    SVM & 0.946 & 0.824 & $<1s$ & 0.661 & 0.393 & $2m$ $15s$ \\ \hline
                 \end{tabular}
             \end{minipage}
-            
-           
+
+
             \begin{figure}[h!]
                 \centering
                 \begin{tabular}[c]{cc}
@@ -332,14 +334,14 @@
 
             Same as the previous process, we trained a LR, LDA, KNN, CART, RF, NB, SVM classifiers.
             \item \textbf{Hyperparameter Tuning}
-            
+
             Hyperparameters was tuned using the subset of dataset described above and the result using all of our data would also be produced after hyperparameters was tuned.
             \begin{enumerate}
                 \item Logistic Regression classifier
 
-                Similar to the previous part, we iterate over several C to see which panelty is better generally. Then we find out its cooresponding regularization strength. 
+                Similar to the previous part, we iterate over several C to see which panelty is better generally. Then we find out its cooresponding regularization strength.
 
-                Testing results charts: Figure 8. As shown in the charts, we select $C = 1.1, penalty = l_2$ 
+                Testing results charts: Figure 8. As shown in the charts, we select $C = 1.1, penalty = l_2$
 
                 \begin{figure}[h!]
                     \begin{subfigure}[b]{0.5\linewidth}
@@ -378,7 +380,7 @@
                 \end{figure}
 
                 \item Support Vector Machine classifier
-                
+
                 \vspace{3mm}
 
                 \begin{minipage}{.4\textwidth}
@@ -410,7 +412,7 @@
                 \end{tabular}
             \end{center}
             \item \textbf{Prediction Result}
-            
+
             \vspace{3mm}
             \begin{minipage}{0.35\textwidth}
                 Compared to the previous method of feature extraction, features from ResNet is performing better.
@@ -424,19 +426,19 @@
                 \begin{tabular}{|c|c|c|c|c|c|c|}
                     \multicolumn{7}{c}{\textbf{ResNet Feature Models Accuracy} }\\
                     \hline
-                        & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
+                    & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     model & train & test & time & train & test & time \\ \hline
                     LR & 1 & 0.941 & 1s & 0.94 & 0.71 & 1m 10s \\ \hline
-                    LDA  & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
+                    LDA & 1 & 0.765 & 1s & 0.915 & 0.751 & 2s \\ \hline
                     KNN & 0.887 & 0.832 & 1s & 0.609 & 0.414 & 3m 41s \\ \hline
                     CART & 1 & 0.563 & 1s & 0.998 & 0.126 & 1m 38s \\ \hline
                     RF & 1 & 0.882 & 4s & 0.998 & 0.51 & 13m 35s\\ \hline
                     NB & 0.854 & 0.824 & 1s & 0.603 & 0.482 & 25s \\ \hline
-                    SVM  & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
+                    SVM & 1 & 0.908 & 1s & 0.998 & 0.679 & 3m 36s \\ \hline
                 \end{tabular}
             \end{minipage}
-            
-            
+
+
 %            \begin{figure}[h!]
 %                \begin{subfigure}[b]{0.5\linewidth}
 %                    \centering
@@ -469,7 +471,7 @@
             Learning rate was also adjusted by decaying 0.1 each 7 epochs, using learning rate scheduler packaged within \texttt{PyTorch}\cite{pytorch}.
             Each model was trained for 25 epochs with training data and prediction results on both training and testing dataset were recorded after each epoch.
             \item \textbf{Prediction results}
-            
+
             \vspace{3mm}
 
             \begin{minipage}{0.35\textwidth}
@@ -477,7 +479,7 @@
                 The problem of distinguishing characters with similar features, e.g.\ same hair color, was persisting but was greatly ameliorated.
                 Only about $12\%$ of \texttt{violet\_evergarden} was recognized as \texttt{saber\_arutoria\_pendoragon}
             \end{minipage}
-            \begin{minipage}{0.45\textwidth}           
+            \begin{minipage}{0.45\textwidth}
                 \begin{tabular}{|c|c|c|c|c|c|c|}
                     \multicolumn{7}{c}{
                         \textbf{ResNet Accuracies}
@@ -486,18 +488,18 @@
                     & \multicolumn{3}{|c|}{self-collected} & \multicolumn{3}{|c|}{Whole dataset} \\ \hline
                     layers & train & test & time & train & test & time \\ \hline
                     18 & 0.965 & 0.969 & $1m$ $19s$ & 0.902 & 0.890 & $14m$ $48s$ \\ \hline
-                    34  & 0.970 & 0.987 & $1m$ $44s$ & 0.919 & 0.900 & $24m$ $27s$ \\ \hline
+                    34 & 0.970 & 0.987 & $1m$ $44s$ & 0.919 & 0.900 & $24m$ $27s$ \\ \hline
                     50 & 0.964 & 0.975 & $2m$ $33s$ & 0.922 & 0.909 & $38m$ $54s$ \\ \hline
                     101 & 0.965 & 0.975 & $3m$ $59s$ & 0.936 & 0.916 & $63m$ $48s$ \\ \hline
                 \end{tabular}
-            \end{minipage}          
+            \end{minipage}
         \end{itemize}
     \end{enumerate}
 
 
     \section{Participants Contribution}
     % Please list the name of the participants. For each participant explain in details the role he/she played in the project: explain which methods was implemented by which member, which dataset was processed by which member, which experimental results were generated by which members, etc.
-    \textbf{Data Collecting}: Ziqian Ge found the Nagadomi's Anime Face Character Dataset. Xin Guan did the manual data cleaning. Ziqian Ge collected the \texttt{Illyasviel\_von\_einzbern} in the self-collected dataset; Xin Guan collected the rest. \\
+    \textbf{Data Collecting}: Ziqian Ge found the Nagadomi's Anime Face Character Dataset. Xin Guan did the manual data cleaning. Ziqian Ge collected images for \texttt{Astolfo}, \texttt{Atalanta}, \texttt{Illyasviel\_von\_einzbern}, \texttt{Jeanne\_dArc}, and \texttt{Mordred} in the self-collected dataset; Xin Guan collected images for \texttt{Saber\_Arutoria\_Pendoragon}, \texttt{Tohsaka\_Rin}, \texttt{Mato\_Sakura}, \texttt{Rider\_Medusa}, \texttt{Misaka\_Mikoto}, and \texttt{Violet\_Evergarden} in the self-collected dataset.\\
     \textbf{Data preprocessing}: Xin Guan did the data reforming in \texttt{data\_cleaning.py} and completed the feature extractors of Non-Neural-Network data loaders(class \texttt{feature\_extraction\_dataloader} and \texttt{resnet\_traditional\_model} in \texttt{data\_loader.py}). Ziqian Ge did the pytorch data loader and RGB information extractor (class \texttt{pytorch\_dataloader} and function \texttt{img\_stat} in \texttt{data\_loader.py}) \\
     \textbf{Model Training and Hyper parameter Tunning}: Xin Guan finished the model structures for non-neural-network models (\texttt{resnet\_traditional\_models.ipynb} and \texttt{traditional\_models.ipynb}); Ziqian Ge did the neural-network constructing and traning(\texttt{neural\_network.ipynb}). Xin Guan tuned SVM and RT's parameters along with visualization; Ziqian Ge tuned LR and KNN's parameters along with visualization. \\
     \textbf{Project Writing}: Xin Guan Completed Introduction, Technical Approach and Non-Neural-Network Models With ResNet Last Layer Inputs in Experimental Results. Ziqian Ge finished Dataset Overview, Non-Neural-Network Models with Image Features inputs and Neural-Network Model in Technical Approach along with the Participants Contribution.
@@ -509,7 +511,200 @@
     \newpage
     \bibliographystyle{acm}
     \bibliography{ref}{}
-    
 
-    
+    \clearpage
+    \twocolumn
+    \appendix
+    \appendixpage
+    \addappheadtotoc
+
+
+    \section{Number of images}\label{sec:dataset-information}
+
+    Self-collected: \vspace{3mm}\\
+    \begin{supertabular}[h!]{lr}
+%        \toprule
+        Character name & Images \\ \hline
+%        \midrule
+        violet\_evergarden & 101 \\
+        tohsaka\_rin & 123 \\
+        illyasviel\_von\_einzbern & 170 \\
+        jeanne\_darc & 162 \\
+        mato\_sakura & 99 \\
+        atalanta & 101 \\
+        misaka\_mikoto & 104 \\
+        saber\_arutoria\_pendoragon & 124 \\
+        rider\_medusa & 70 \\
+        astolfo & 103 \\
+        mordred & 110 \\
+%        \bottomrule
+    \end{supertabular} \vspace{10mm} \\
+
+    \noindent Moeimouto: \vspace{3mm}\\
+    \begin{supertabular}[h!]{lr}
+%        \toprule
+        Character name & Images \\ \hline
+%        \midrule
+        milfeulle\_sakuraba & 75 \\
+        seto\_san & 65 \\
+        reinforce\_zwei & 61 \\
+        asakura\_yume & 81 \\
+        flandre\_scarlet & 63 \\
+        kallen\_stadtfeld & 112 \\
+        fuyou\_kaede & 104 \\
+        fujibayashi\_kyou & 77 \\
+        kobayakawa\_yutaka & 59 \\
+        kanu & 70 \\
+        maka\_albarn & 50 \\
+        sairenji\_haruna & 142 \\
+        belldandy & 76 \\
+        caro\_ru\_lushe & 88 \\
+        hiiragi\_kagami & 110 \\
+        nagato\_yuki & 88 \\
+        ichinose\_kotomi & 102 \\
+        reisen\_udongein\_inaba & 89 \\
+        akizuki\_ritsuko & 59 \\
+        minamoto\_chizuru & 59 \\
+        takara\_miyuki & 105 \\
+        shirley\_fenette & 54 \\
+        izayoi\_sakuya & 74 \\
+        midori & 97 \\
+        melon-chan & 130 \\
+        hinamori\_amu & 134 \\
+        shana & 66 \\
+        souryuu\_asuka\_langley & 79 \\
+        shameimaru\_aya & 73 \\
+        minase\_iori & 76 \\
+        alice\_margatroid & 110 \\
+        tsukimura\_mayu & 151 \\
+        tohsaka\_rin & 76 \\
+        hatsune\_miku & 63 \\
+        vita & 95 \\
+        feena\_fam\_earthlight & 128 \\
+        suzumiya\_akane & 57 \\
+        takatsuki\_yayoi & 75 \\
+        saigyouji\_yuyuko & 63 \\
+        horo & 112 \\
+        megurine\_luka & 96 \\
+        sonozaki\_mion & 110 \\
+        patchouli\_knowledge & 90 \\
+        akiyama\_mio & 76 \\
+        nagi & 88 \\
+        lisianthus & 77 \\
+        hirasawa\_yui & 83 \\
+        matou\_sakura & 90 \\
+        suzumiya\_haruhi & 98 \\
+        asagiri\_mai & 64 \\
+        akihime\_sumomo & 87 \\
+        canal\_volphied & 73 \\
+        asakura\_otome & 73 \\
+        ayanami\_rei & 77 \\
+        nijihara\_ink & 121 \\
+        mizunashi\_akari & 88 \\
+        lala\_satalin\_deviluke & 160 \\
+        teana\_lanster & 102 \\
+        sakagami\_tomoyo & 114 \\
+        matsuoka\_miu & 46 \\
+        sanzenin\_nagi & 112 \\
+        vivio & 51 \\
+        kamikita\_komari & 106 \\
+        tainaka\_ritsu & 78 \\
+        andou\_mahoro & 75 \\
+        kochiya\_sanae & 92 \\
+        arcueid\_brunestud & 73 \\
+        nunnally\_lamperouge & 37 \\
+        golden\_darkness & 103 \\
+        pastel\_ink & 87 \\
+        ana\_coppola & 44 \\
+        illyasviel\_von\_einzbern & 47 \\
+        shindou\_kei & 74 \\
+        kinomoto\_sakura & 121 \\
+        aika\_granzchesta & 36 \\
+        katagiri\_yuuhi & 92 \\
+        nogizaka\_haruka & 60 \\
+        kousaka\_tamaki & 161 \\
+        tsuruya & 78 \\
+        ryuuguu\_rena & 93 \\
+        nerine & 95 \\
+        komaki\_manaka & 93 \\
+        ranka\_lee & 124 \\
+        kirisame\_marisa & 80 \\
+        enma\_ai & 50 \\
+        subaru\_nakajima & 146 \\
+        saotome\_alto & 40 \\
+        corticarte\_apa\_lagranges & 82 \\
+        kusugawa\_sasara & 70 \\
+        asahina\_mikuru & 84 \\
+        reina & 52 \\
+        shihou\_matsuri & 74 \\
+        suzumiya\_haruka & 80 \\
+        miura\_azusa & 61 \\
+        remilia\_scarlet & 88 \\
+        shidou\_hikaru & 59 \\
+        kisaragi\_chihaya & 43 \\
+        ito\_nobue & 38 \\
+        yakumo\_yukari & 60 \\
+        hayama\_mizuki & 47 \\
+        katsura\_hinagiku & 98 \\
+        ayasaki\_hayate & 58 \\
+        katsura\_kotonoha & 79 \\
+        nanael & 41 \\
+        primula & 71 \\
+        kagamine\_rin & 78 \\
+        amami\_haruka & 133 \\
+        houjou\_satoko & 80 \\
+        siesta & 70 \\
+        furude\_rika & 109 \\
+        saber\_arutoria\_pendoragon & 79 \\
+        kagurazaka\_asuna & 58 \\
+        louise & 119 \\
+        kotobuki\_tsumugi & 81 \\
+        chii & 70 \\
+        hayase\_mitsuki & 86 \\
+        miyamura\_miyako & 132 \\
+        yagami\_hayate & 117 \\
+        aisaka\_taiga & 44 \\
+        yoko & 75 \\
+        shindou\_chihiro & 43 \\
+        furukawa\_nagisa & 88 \\
+        fate\_testarossa & 79 \\
+        natsume\_rin & 78 \\
+        shinku & 68 \\
+        fukuzawa\_yumi & 33 \\
+        hakurei\_reimu & 99 \\
+        yuuki\_mikan & 94 \\
+        sendou\_erika & 69 \\
+        nakano\_azusa & 102 \\
+        maria & 63 \\
+        noumi\_kudryavka & 69 \\
+        black\_rock\_shooter & 39 \\
+        nagase\_minato & 130 \\
+        ryougi\_shiki & 49 \\
+        konpaku\_youmu & 83 \\
+        kawashima\_ami & 60 \\
+        izumi\_konata & 95 \\
+        shigure\_asa & 98 \\
+        takamachi\_nanoha & 106 \\
+        yoshida\_kazumi & 76 \\
+        suigintou & 63 \\
+        sheryl\_nome & 79 \\
+        shirakawa\_kotori & 74 \\
+        ogasawara\_sachiko & 42 \\
+        cirno & 71 \\
+        sonsaku\_hakufu & 55 \\
+        nia & 65 \\
+        yuzuhara\_konomi & 112 \\
+        kotegawa\_yui & 93 \\
+        c.c & 93 \\
+        ibuki\_fuuko & 85 \\
+        daidouji\_tomoyo & 100 \\
+        yuno & 98 \\
+        ito\_chika & 39 \\
+        hiiragi\_tsukasa & 96 \\
+        houjou\_reika & 129 \\
+        miyafuji\_yoshika & 68 \\
+%        \bottomrule
+    \end{supertabular}
+
+
 \end{document}
