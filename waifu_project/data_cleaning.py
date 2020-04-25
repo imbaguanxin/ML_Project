@@ -2,6 +2,8 @@ import os
 import re
 import shutil
 
+import pandas as pd
+
 
 def data_cleaning(moeimouto=True, self_collected=True, destination="modeling_data", force_write=False):
     """
@@ -117,5 +119,38 @@ def self_collected_clean_up(destination="modeling_data"):
         print("[STATUS] {} copy work finished".format(file))
 
 
+def count_images(moeimouto=True, self_collected=True, data_path='modeling_data', **kwargs):
+    """
+    Count the number of images of each character in dataset.
+    Notice that this function will call data_clean() internally, so it will write to disk.
+
+    Parameters
+    ----------
+    moeimouto: bool
+        whether to include images from moeimouto dataset
+    self_collected: bool
+        whether to include images from self-collected dataset
+    data_path: str
+        the folder where data is stored
+    kwargs
+        additional keyword arguments passed to data_cleaning() other than destination
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    data_cleaning(moeimouto, self_collected, data_path, **kwargs)
+
+    data_path = os.path.join('data_set', data_path)
+    image_nums = [len(os.listdir(os.path.join(data_path, char_name)))
+                  for char_name in os.listdir(data_path)]
+
+    df = pd.DataFrame({'name': os.listdir(data_path), 'count': image_nums}).set_index('name')
+    return df
+
+
 if __name__ == '__main__':
-    data_cleaning()
+    result = count_images(moeimouto=True, self_collected=True, data_path='modeling_data', force_write=True)
+    # print(result)
+    result.to_csv('image_nums.csv')
+    print(result.to_latex())
