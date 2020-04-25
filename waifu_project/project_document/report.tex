@@ -225,11 +225,11 @@
                     \end{tabular}
                     \caption{LR on Image Features hyperparameter tuning}
                 \end{figure}
-                As shown in the result, we should have l2-norm regularization in penalty function, and the best regularization strength $C= 4.5$, with accuracy $= 0.807$
+                As shown in the result, we should have l2-norm regularization in penalty function, and the best regularization strength $C= 6.8$, with accuracy $= 0.764$
 
                 \item K Nearest Neighbors classifier
 
-                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.The $k$ performing the best is $k = 6$.
+                We tried out different values of $k$, ranging from $2$ to $30$ to find the best value of $k$.The $k$ performing the best is $k = 4$.
                 % Testing results:
                 % \begin{figure}[h!]
                 %     \begin{subfigure}[b]{\linewidth}
@@ -253,14 +253,14 @@
                     \end{subfigure}
                 \end{figure}
 
-                As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $3000$.
+                As shown in the graph, we should use Gini impurity function as our loss function and the best number of estimators is $1400$.
 
                 \item Support Vector Machine classifier
                 \\
                 \begin{minipage}{0.4\textwidth}
                     We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them.
                     For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
-                    The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value. The best hyperparameter $C = 4.0$ and $degree = 4$, with accuracy $= 0.799$
+                    The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value. The best hyperparameter $C = 13.0$ and $degree = 4$, with accuracy $= 0.792$
                 \end{minipage}
                 \begin{minipage}{0.5\textwidth}
                     \begin{center}
@@ -274,10 +274,10 @@
             \begin{center}
                 \begin{tabular}{|c|c|}
                     \hline
-                    LR&C = 5.1, penalty = $l_2$\\ \hline
-                    KNN& $k = 5$\\ \hline
-                    RT& Loss Function = gini, n\_estimators = 1400\\ \hline
-                    SVM& Kernel = poly, degree = 2, C = 7.0\\ \hline
+                    LR&C = $6.8$, penalty = $l_2$\\ \hline
+                    KNN& $k = 4$\\ \hline
+                    RT& Loss Function = gini, n\_estimators = $1400$\\ \hline
+                    SVM& Kernel = poly, degree = $4$, C = $13.0$\\ \hline
                 \end{tabular}
             \end{center}
             \item \textbf{Prediction Results}
