@@ -19,14 +19,14 @@
     \maketitle
 
     \abstract
-    Please provide a brief abstract of your project.
+    To takle the problem of recognizing untagged image of animation characters, this project tested 2 ways of image feature extractions and used both neural network and non-neural-network models to perform the prediction. The accuracy of recognition is good (above 90\%) if with a modern, clean, high-resolution image datasets. The neural-network model can even reach accuracy of 99\%.
     
 
     \vspace{2mm}
 
 
     \section{Introduction}
-    Fan-arts of various animation characters are often not labeled or are hard for people, especially those who are new to the community, to recognize the illustrating character, since many anime characters shares similar characteristics and different illustrators may shift some of the features base on their own taste. Therefore, one character may look very different under different painters and many characters may look alike.
+    Fan-arts of various animation characters are often not labeled or are hard for people, especially those who are new to the community, to recognize, since many anime characters shares similar characteristics. Also, different illustrators may shift some of the features base on their own taste. Therefore, one character may look very different under different painters and many characters may appear alike.
     \begin{figure}[!ht]
         \begin{center}
             \begin{tabular}[c]{cc}
@@ -47,12 +47,12 @@
     \\ 
     Untagged illustrations would make some trouble for animation community members.
     Large number of 'Who is she/he' questions are emerging on social networks plantforms like Twitter, 2Chan and Bilibili.
-    Even some video makers are making videos on answering those questions.
+    Even some video makers are posting works on answering those questions.
     On the other hand, within the machine learning community, if anyone is trying to make a illustration suggestion system based on the features or characteristics of anime characters, or trying to use GAN (Generative Adversarial Network) to generate fake anime illustrations, they might have to tag those pictures manually.\\ 
-    Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character, for example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.
+    Automatic character recognizing would then make some differences when one is facing a large set of untagged illustrations or would like to add/optimize tags based on character. For example, a character may be bounded to specific tags, like blond, green-eye, sword, armored, etc.
     This project is aiming to use machine learning techniques to automatically recognize characters in illustrations, based on their faces. We are mainly focusing on characters from japanese styled mangas and aminations. This project is making use of a variety of classification models including models like logistic regression classifier, random forest classifier and support vector machine and neural networks.\\ 
-    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape of the image contents and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of pre-trained \texttt{ResNet}\cite{resnet} as the image features and train them on non-neural-network models.\\ 
-    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset[]. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with \texttt{ResNet}\cite{resnet} extracted features. 
+    In order to make it possible to train non-neural-network models, we performed feature extraction techniques on images during the preprocessing stage. The first strategy is extracting the texture, color and shape contents from the images and then flattern those features to an vector for the models to lean. The second strategy is extracting features using the output of the last layer of a pre-trained \texttt{ResNet}\cite{resnet} as the image features and train them on non-neural-network models.\\ 
+    In this project, we did hyperparameter tuning on a rather small dataset that is collected manually by us and then train the model on the whole dataset which consists of ours and Nagadomi's anime face character dataset\cite{dataset}. Neural network performed best with a recognition rate of 90\%. Support vector machine was the best model among non-neural-network models with \texttt{ResNet}\cite{resnet} extracted features. 
 
 
     \section{Technical Approach}
@@ -255,14 +255,14 @@
 
                 \item Support Vector Machine classifier
                 \\
-                \begin{minipage}{0.35\textwidth}
+                \begin{minipage}{0.4\textwidth}
                     We have tried different kernels, linear, polynomial, rbf, and sigmoid kernels to find the best kernel among them.
                     For polynomial kernel, we have also tried and tested different degree of polynomial kernel, ranging from $1$ to $20$, to find the best degree.
                     The regularization strength, C, was also tested with floats ranging from $1$ to $30.0$ to find the best value. The best hyperparameter $C = 4.0$ and $degree = 4$, with accuracy $= 0.799$
                 \end{minipage}
-                \begin{minipage}{0.6\textwidth}
+                \begin{minipage}{0.5\textwidth}
                     \begin{center}
-                        \includegraphics[width=0.7\linewidth]{images/svm_kernel.png}
+                        \includegraphics[width=0.65\linewidth]{images/svm_kernel.png}
                     \end{center}
                 \end{minipage}
                 
@@ -390,7 +390,7 @@
                     The best hyperparameter we have is $kernel = poly, C = 1.0$ and $degree = 4$.
                 \end{minipage}
                 \begin{minipage}{.4\textwidth}
-                    \includegraphics[width=\textwidth]{images/res_tradi_SVM_penalty2.png}
+                    \includegraphics[width=0.8\textwidth]{images/res_tradi_SVM_penalty2.png}
                 \end{minipage}
                 % \begin{figure}[h!]
                 %     \centering
