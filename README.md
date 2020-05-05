@@ -14,9 +14,15 @@ Also we plan to collect some more recent anime characters on ourselves. Facial i
 
 ## Methods
 
-We are now planning to use different ML tools including traditional methods like Regression and SVM.
+We plan to use 2 ways to extract image features: 
 
-Also, we might build neural networks like CNN and GAN as well.
+1. From image patterns(Hu Moments, Color and Haralic textures)
+
+2. From pre-trained ResNet18
+
+After gathering these information, we train them on models including: `Logistic Regression`, `Random Forest`, `Linear Discriminant Analysis`, `Support Vector Machine`, `Decision Tree` etc. Then we tunned the hyperparameters on a relatively small dataset and trained the model on the whole dataset.
+
+Also, we played our data on resnet.
 
 ## Contribute to the data set
 
